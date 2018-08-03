@@ -10,4 +10,4 @@ class HoldingsStats:
             2. % portfolio weight
             3. YTD return
         """
-        print ""
+        print ("")

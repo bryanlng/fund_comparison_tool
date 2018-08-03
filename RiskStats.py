@@ -16,60 +16,60 @@ class RiskStats:
             8. Capture ratios (5 time periods: 1 year, 3 year, 5 year, 10 year, 15 year)
         Return in a JsonResponse encoded object
         """
-        print ""
+        print ("")
 
 
     def get_alphas(fund_symbol):
         """
         Gets alpha values for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_betas(fund_symbol):
         """
         Gets beta values for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_r_squareds(fund_symbol):
         """
         Gets R-squared values for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_stddevs(fund_symbol):
         """
         Gets standard deviation values for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_sharpe_ratios(fund_symbol):
         """
         Gets sharpe ratios for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_sortino_ratios(fund_symbol):
         """
         Gets sortino ratios for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_treynor_ratios(fund_symbol):
         """
         Gets treynor ratios for 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
 
 
     def get_capture_ratios(fund_symbol):
         """
         Gets upside and downside capture ratios for 1 year, 3 year, 5 year, 10 year, 15 year
         """
-        print ""
+        print ("")
