@@ -47,12 +47,13 @@ class PerformanceStats:
     def build_performance_url(self, fund_symbol):
         return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="
 
-    def get_historical_returns(self, fund_symbol):
+    def get_fund_historical_returns(self, fund_symbol):
         """
-        Grabs historical annual total returns for each year (current year until earliest date)
+        Grabs historical annual total returns for each year (current year until earliest date),
+        for both the fund, and its category
         Source = Yahoo Finance
         Input:      Fund symbol, 5 letter acronym, string
-        Returns:    Dict with return values, key = year, value = return
+        Returns:    Dict that contains 2 dicts. Each dict has key=year, value=return
         """
         url = self.build_historical_url(fund_symbol)
         raw = requests.get(url)
@@ -60,7 +61,7 @@ class PerformanceStats:
             soup = BeautifulSoup(raw.text, 'html.parser')
 
     def build_historical_url(self, fund_symbol):
-        return 
+        return
 
 
 p = PerformanceStats()
