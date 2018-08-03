@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import requests
 import json
 
@@ -40,3 +42,13 @@ for row in rows:
     # print ("")
 # print(type(rows))
 # print(rows)
+
+
+###Selenium stuff, using pyvirtualdisplay
+
+###Selenium stuff, using headless chrome
+# webdriver =
+# options = webdriver.ChromeOptions()
+# options.add_experimental_option("excludeSwitches",["ignore-certificate-errors"])
+# options.add_argument('--disable-gpu')
+# options.add_argument('--headless')
