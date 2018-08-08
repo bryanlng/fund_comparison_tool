@@ -59,12 +59,21 @@ class PerformanceStats:
         Source = Yahoo Finance
         Input:      Fund symbol, 5 letter acronym, string
         Returns:    Dict that contains 2 dicts. Each dict has key=year, value=return
+
+        Selenium remote webdriver WebElement attributes and methods
+        https://seleniumhq.github.io/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
         """
         url = self.build_historical_url(fund_symbol)
         raw = requests.get(url)
         if raw != None:
-            soup = BeautifulSoup(raw.text, 'html.parser')
-            print(soup.prettify())
+            driver = webdriver.Chrome("/Users/bryan.leung/scrape/fund_comparison_tool/chromedriver")
+            driver.get(url)
+            parent = driver.find_element_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/h3/span""")
+            print(parent)
+            historicals = parent.find_elements_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/div""")
+            for h in historicals:
+                print(h.text)
+
 
     def build_historical_url(self, fund_symbol):
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
@@ -72,4 +81,5 @@ class PerformanceStats:
 
 p = PerformanceStats()
 # print(p.get_trailing_returns("PRHSX"))
-print(p.get_fund_historical_returns("PRHSX"))
+# print(p.get_fund_historical_returns("PRHSX"))
+p.get_fund_historical_returns("PRHSX")
