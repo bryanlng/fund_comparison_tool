@@ -3,6 +3,7 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 import requests
 import json
+import datetime
 
 
 class PerformanceStats:
@@ -59,27 +60,83 @@ class PerformanceStats:
         Source = Yahoo Finance
         Input:      Fund symbol, 5 letter acronym, string
         Returns:    Dict that contains 2 dicts. Each dict has key=year, value=return
-
-        Selenium remote webdriver WebElement attributes and methods
-        https://seleniumhq.github.io/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
         """
         url = self.build_historical_url(fund_symbol)
         raw = requests.get(url)
         if raw != None:
-            driver = webdriver.Chrome("/Users/bryan.leung/scrape/fund_comparison_tool/chromedriver")
-            driver.get(url)
-            parent = driver.find_element_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/h3/span""")
-            print(parent)
-            historicals = parent.find_elements_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/div""")
-            for h in historicals:
-                print(h.text)
-
+            historical_returns = self.scrape_historical_returns(fund_symbol, url)
+            if historical_returns != None:
+                return historical_returns
 
     def build_historical_url(self, fund_symbol):
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
+
+    def scrape_historical_returns(self, fund_symbol, url):
+        raw_values = self.extract_values(fund_symbol, url)
+        values = self.remove_unnecessary_values(raw_values, fund_symbol)
+        return self.build_json_response(values, fund_symbol)
+
+    def extract_values(self, fund_symbol, url):
+        """
+        Selenium remote webdriver WebElement attributes and methods
+        https://seleniumhq.github.io/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
+        """
+
+        #Initialize selenium in Chrome
+        driver = webdriver.Chrome("/Users/bryan.leung/scrape/fund_comparison_tool/chromedriver")
+        driver.get(url)
+
+        #Extract values using find_element_by_xpath.
+        #For reference, we are scraping the data table under the performance page for a mutual fund on Yahoo Finance's "Annual Total Return (%) History"
+        parent = driver.find_element_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/h3/span""")
+        historicals = parent.find_elements_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/div""")
+        raw_text = str(historicals[0].text)
+        return raw_text.split("\n")
+
+    def remove_unnecessary_values(self, values, fund_symbol):
+        """
+        Remove unnecessary values such as ["Year", fund name, "Category", current year, "N/A"]
+        Need to remove current year + n/a, as the return for the current year is "N/A"
+        """
+        now = datetime.datetime.now()
+        to_remove = ["Year", fund_symbol, "Category", str(now.year), "N/A"]
+        return [v for v in values if v not in to_remove]
+
+    def build_json_response(self, values, fund_symbol):
+        """
+        Precondition: List length must be a multiple of 3, or else it'll break and we'll get IndexError
+        Assuming 2018 is current year, don't include 2018, start at 2017, as 2018 is "N/A"
+        Converts list of string values --> 2 dicts in the following format:
+        {
+            fund_symbol: {
+                "2017": 27.95,
+                ...
+                "1996": 26.75
+            },
+            category: {
+                "2017": 24.31,
+                ...
+                "1996": 13.5
+            }
+        }
+        """
+        response = {}
+        fund = {}
+        category = {}
+        for i in range(0,len(values),3):
+            fund_return = values[i+1]
+            category_return = values[i+2]
+            fund[values[i]] = float(fund_return[:-1])
+            category[values[i]] = float(category_return[:-1])
+
+        response["fund_symbol"] = fund
+        response["category"] = category
+        return response
+
+
 
 
 p = PerformanceStats()
 # print(p.get_trailing_returns("PRHSX"))
 # print(p.get_fund_historical_returns("PRHSX"))
-p.get_fund_historical_returns("PRHSX")
+print(p.get_fund_historical_returns("PRHSX"))
