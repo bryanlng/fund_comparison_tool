@@ -4,6 +4,8 @@ from selenium import webdriver
 import requests
 import json
 import datetime
+from xvfbwrapper import Xvfb
+
 
 
 class PerformanceStats:
@@ -80,9 +82,15 @@ class PerformanceStats:
         """
         Selenium remote webdriver WebElement attributes and methods
         https://seleniumhq.github.io/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
+        http://elementalselenium.com/tips/38-headless
+        https://stackoverflow.com/questions/6183276/how-do-i-run-selenium-in-xvfb
         """
 
         #Initialize selenium in Chrome
+        # display = Display(visible=0, size=(800, 600))
+        # display.start()
+        vdisplay = Xvfb()
+        vdisplay.start()
         driver = webdriver.Chrome("/Users/bryan.leung/scrape/fund_comparison_tool/chromedriver")
         driver.get(url)
 
@@ -91,6 +99,10 @@ class PerformanceStats:
         parent = driver.find_element_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/h3/span""")
         historicals = parent.find_elements_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/div""")
         raw_text = str(historicals[0].text)
+        # driver.quit()
+        # display.stop()
+        driver.quit()
+        vdisplay.stop()
         return raw_text.split("\n")
 
     def remove_unnecessary_values(self, values, fund_symbol):
