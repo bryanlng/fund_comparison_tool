@@ -91,7 +91,7 @@ class PerformanceStats:
         # display.start()
         vdisplay = Xvfb()
         vdisplay.start()
-        driver = webdriver.Chrome("/Users/bryan.leung/scrape/fund_comparison_tool/chromedriver")
+        driver = webdriver.Chrome("/u/bryanlng/scrape/chromedriver_linux")     #utcs machines location
         driver.get(url)
 
         #Extract values using find_element_by_xpath.
