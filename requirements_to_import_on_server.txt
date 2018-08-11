@@ -1,0 +1,4 @@
+BeautifulSoup4
+Selenium
+requests
+xvfbwrapper

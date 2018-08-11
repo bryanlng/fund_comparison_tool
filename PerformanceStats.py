@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from pyvirtualdisplay import Display
 from selenium import webdriver
 import requests
 import json
@@ -149,6 +148,5 @@ class PerformanceStats:
 
 
 p = PerformanceStats()
-# print(p.get_trailing_returns("PRHSX"))
+print(p.get_trailing_returns("PRHSX"))
 # print(p.get_fund_historical_returns("PRHSX"))
-print(p.get_fund_historical_returns("PRHSX"))
