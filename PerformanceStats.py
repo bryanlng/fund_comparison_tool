@@ -4,10 +4,9 @@ import json
 import datetime
 from lxml import etree, html
 
+YAHOO_FINANCE_SPAN_TAG_CLASS_NAME = "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)"
+
 class PerformanceStats:
-
-    YAHOO_FINANCE_SPAN_TAG_CLASS_NAME = "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)"
-
 
     def get_performance_stats(self, fund_symbol):
         """
@@ -17,7 +16,11 @@ class PerformanceStats:
             3. Historical annual total returns for each year (current year until earliest date)
         Return in a JsonResponse encoded object
         """
-        print("")
+        stats = {}
+        stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+        stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
+        stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+        return stats
 
     def get_10000_growth(self, fund_symbol):
         print("")
@@ -32,7 +35,7 @@ class PerformanceStats:
         # Build a dictionary, where key = time period, value = trailing return for that time period.
         timespans = ["1-Month", "3-Month", "6-Month", "YTD",
                      "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
-        dictionary = {}
+        response = {}
         url = self.build_performance_url(fund_symbol)
         try:
             raw = requests.get(url)
@@ -46,11 +49,11 @@ class PerformanceStats:
                     row_header = row.find("th")
                     if row_header.text == fund_symbol:
                         quarterly_returns = [col.text for col in row.findAll("td")]
-                        dictionary = dict(zip(timespans, quarterly_returns))
+                        response = dict(zip(timespans, quarterly_returns))
         except Exception as e: # Not good to have a catch-all exception, but I'll create custom exceptions later
             print e
 
-        return dictionary
+        return response
 
 
     def build_performance_url(self, fund_symbol):
@@ -160,5 +163,7 @@ class PerformanceStats:
 
 
 p = PerformanceStats()
-print(p.get_trailing_returns("PRHSX"))
-print(p.get_fund_historical_returns("PRHSX"))
+fund_symbol = "PRHSX"
+# print(p.get_trailing_returns(fund_symbol))
+# print(p.get_fund_historical_returns(fund_symbol))
+print(p.get_performance_stats(fund_symbol))
