@@ -4,8 +4,6 @@ import json
 import datetime
 from lxml import etree, html
 
-YAHOO_FINANCE_SPAN_TAG_CLASS_NAME = "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)"
-
 class PerformanceStats:
 
     def get_performance_stats(self, fund_symbol):
@@ -51,7 +49,7 @@ class PerformanceStats:
                         quarterly_returns = [col.text for col in row.findAll("td")]
                         response = dict(zip(timespans, quarterly_returns))
         except Exception as e: # Not good to have a catch-all exception, but I'll create custom exceptions later
-            print e
+            print(e)
 
         return response
 
@@ -93,8 +91,8 @@ class PerformanceStats:
                     <span data-reactid="123">Annual Total Return (%) History</span>     <--Start here
                 </h3>
                  <div data-reactid="124">
-                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(20px) Pt(10px) C($c-fuji-grey-j) Fz(xs) Fw(400)" data-reactid="125">some irrelevant stuff here</div>
-                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2018 with 4 spans that we want to extract </div>
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(20px) Pt(10px) C($c-fuji-grey-j) Fz(xs) Fw(400)" data-reactid="125">some irrelevant stuff here</div>  <-- remove
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2018 with 4 spans, ignore </div>  <-- remove
                     <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2017 with 4 spans that we want to extract </div>
                     ....
                     <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 1996 with 4 spans that we want to extract </div>
@@ -114,14 +112,14 @@ class PerformanceStats:
         h3 = h3_span_text[0].getparent()
         table = h3.getnext()
 
-        #Grab all columns as lxml Element objects that have the historical return data in them, aka if the div tag looks like this: <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="148"></div>
-        viable_columns_as_elements = []
-        for column in list(table):
-            class_item = [item for item in column.items() if "class" in item and YAHOO_FINANCE_SPAN_TAG_CLASS_NAME in item]
-            if len(class_item) == 1:
-                viable_columns_as_elements.append(column)
+        #Grab all columns as lxml Element objects. This includes the 2 columns we don't want (placeholder value column + current year), so we need to filter them out.
+        columns = [column for column in list(table)]
 
-        return viable_columns_as_elements
+        #Assuming elements are in document order, we can just remove the first 2 elements of the list
+        del columns[0:2]
+
+        #Return filtered version
+        return columns
 
     def build_json_response(self, column_data, fund_symbol):
         """
