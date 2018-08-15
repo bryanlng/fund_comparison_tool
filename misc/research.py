@@ -8,6 +8,8 @@ import urllib2
 from lxml.html.soupparser import fromstring
 from lxml.etree import tostring
 from io import StringIO, BytesIO
+import datetime
+
 
 """
 https://stackoverflow.com/questions/17196018/extracting-table-contents-from-html-with-python-and-beautifulsoup
@@ -103,11 +105,130 @@ https://lxml.de/elementsoup.html
 https://lxml.de/parsing.html#parsing-html
 https://lxml.de/lxmlhtml.html
 """
+# fund_symbol = "PRHSX"
+# url =  build_historical_url(fund_symbol)
+# raw = requests.get(url)
+# broken_html = raw.text
+# parser = etree.HTMLParser()
+# tree   = etree.parse(StringIO(broken_html), parser)
+# result = etree.tostring(tree.getroot(),  pretty_print=True, method="html")
+# print(result)
+
+
+"""
+https://docs.python-guide.org/scenarios/scrape/
+https://lxml.de/lxmlhtml.html#parsing-html
+HTML elements have all the methods that come with ElementTree, but also include some extra methods:
+Methods:
+https://lxml.de/api/lxml.html.HtmlElement-class.html
+addnext', 'addprevious', 'append', 'attrib', 'base', 'base_url', 'body', 'classes', 'clear', 'cssselect', 'drop_tag', 'drop_tree', 
+'extend', 'find', 'find_class', 'find_rel_links', 'findall', 'findtext', 'forms', 'get', 'get_element_by_id', 'getchildren', 'getiterator', 
+'getnext', 'getparent', 'getprevious', 'getroottree', 'head', 'index', 'insert', 'items', 'iter', 'iterancestors', 'iterchildren', 
+'iterdescendants', 'iterfind', 'iterlinks', 'itersiblings', 'itertext', 'keys', 'label', 'make_links_absolute', 'makeelement', 'nsmap', 
+'prefix', 'remove', 'replace', 'resolve_base_href', 'rewrite_links', 'set', 'sourceline', 'tag', 'tail', 'text', 'text_content', 'values', 'xpath'
+
+Pertinent methods:
+1. items(self):
+    -gets element attributes, as a sequence. The attributes are returned in an arbitrary order.
+
+2. getchildren(self):
+    -returns all direct children, as HtmlElement objects   , <class 'lxml.html.HtmlElement'>
+    -Avoid using this, as this has been DEPRECATED. New code should use list(element) or simply iterate over elements. 
+    -https://lxml.de/api/lxml.etree._Element-class.html#getchildren
+
+
+Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)
+"""
 fund_symbol = "PRHSX"
 url =  build_historical_url(fund_symbol)
-raw = requests.get(url)
-broken_html = raw.text
-parser = etree.HTMLParser()
-tree   = etree.parse(StringIO(broken_html), parser)
-result = etree.tostring(tree.getroot(),  pretty_print=True, method="html")
-print(result)
+page = requests.get(url)
+tree = html.fromstring(page.content)
+# print(tree)     #HtmlElement object, <class 'lxml.html.HtmlElement'>
+# print(type(tree))   
+# print(dir(tree))
+# print(tree.text_content())
+# print(tree.xpath())
+# print(tree.items())
+# children = tree.getchildren()
+# for c in children:
+#     print(type(c))
+# buyers = tree.xpath('//html/body/div[1]/div/div[1]/div[1]/div/div[3]/div[1]/div/div[1]/div/div/section/div[3]/div[@class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)"]/text()')
+# print(buyers)
+
+"""
+https://stackoverflow.com/questions/14299978/how-to-use-lxml-to-find-an-element-by-text
+"""
+
+#Find the H3 tag that says Annual Total Return (%) History
+e = tree.xpath('.//span[text()="Annual Total Return (%) History"]')
+
+#The table we wnat is in a div tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
+h3 = e[0].getparent()
+print(h3)
+table = h3.getnext()
+
+#Grab all columns as Element objects that have the historical return data in them. In the case of PRHSX, it should be this year (2018) to its starting date (1996). There should be 23 elements
+viable_columns_as_elements = []
+for column in list(table):
+    class_item = [item for item in column.items() if "class" in item and "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" in item]
+    if len(class_item) == 1:
+        viable_columns_as_elements.append(column)
+
+#Extract data out of viable columns. Extract all data except for data this year. Each column is a div tag that contains 4 span columns for year, ui bar, fund return, category return. We only want year, fund return, category return.
+current_year = str(datetime.datetime.now().year)
+fund = {}
+category = {}
+response = {}
+for col in viable_columns_as_elements:
+    data = [str(span.text_content()) for span in list(col)]
+    if current_year not in data:
+        #Data will be in the format of a list of 4 elements, in the order [year, ui bar, fund return, category return]. We hardcode order, as Elements are returned in document order, according to documentation
+        year = int(data[0])
+        fund_return = float(data[2][:-1])
+        category_return = float(data[3][:-1])
+        fund[year] = fund_return
+        category[year] = category_return
+        
+response[fund_symbol] = fund
+response["category"] = category
+print(fund)
+print(category)
+
+
+
+
+
+
+#Trying to iterate div's children using iterchildren(), before I found an easier way to do it using list(elem)
+
+# for c in enclosing_div_children:
+#     print(c.tag)
+# print(k)
+# enclosing_div_iterator = enclosing_div.iterchildren()   #<lxml.etree.ElementChildIterator object at 0x7f6641461140>
+# table = None
+# while True:
+#     try:
+#         elem = enclosing_div_iterator.next()
+#         if elem.tag == "div":
+#             table = elem
+#             print(elem.tag)
+#     except StopIteration:
+#         break
+
+
+# table_iterator = table.iterchildren()   #<lxml.etree.ElementChildIterator object at 0x7f6641461140>
+# viable_columns_as_elements = []
+# while True:
+#     try:
+#         column = table_iterator.next()
+#         items = column.items()
+#         print("new column")
+#         print(column)
+#         print("items: ", items)
+#         class_item = [item for item in items if "class" in item and "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" in item]
+#         if len(class_item) == 1:
+#             viable_columns_as_elements.append(column)
+#     except StopIteration:
+#         break
+
+# for element in viable_columns_as_elements:
