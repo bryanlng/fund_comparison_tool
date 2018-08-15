@@ -1,13 +1,14 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import requests
 import json
 import datetime
-from xvfbwrapper import Xvfb
-
-
+from lxml import etree, html
 
 class PerformanceStats:
+
+    YAHOO_FINANCE_SPAN_TAG_CLASS_NAME = "Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)"
+
+
     def get_performance_stats(self, fund_symbol):
         """
         Grabs performance stats. Grabs 3 things:
@@ -73,51 +74,56 @@ class PerformanceStats:
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
     def scrape_historical_returns(self, fund_symbol, url):
-        raw_values = self.extract_values(fund_symbol, url)
-        values = self.remove_unnecessary_values(raw_values, fund_symbol)
-        return self.build_json_response(values, fund_symbol)
+        columns = self.extract_raw_column_data(fund_symbol, url)
+        return self.build_json_response(columns, fund_symbol)
 
-    def extract_values(self, fund_symbol, url):
+    def extract_raw_column_data(self, fund_symbol, url):
         """
-        Selenium remote webdriver WebElement attributes and methods
-        https://seleniumhq.github.io/selenium/docs/api/py/webdriver_remote/selenium.webdriver.remote.webelement.html
-        http://elementalselenium.com/tips/38-headless
-        https://stackoverflow.com/questions/6183276/how-do-i-run-selenium-in-xvfb
+        Extracts column data as Element objects from url
+
+        https://stackoverflow.com/questions/14299978/how-to-use-lxml-to-find-an-element-by-text
+
+        Process:
+            Given this html from https://finance.yahoo.com/quote/PRHSX/performance?p=PRHSX:
+            <div class="Mb(25px) " data-reactid="121">
+                 <h3 data-reactid="122">
+                    <span data-reactid="123">Annual Total Return (%) History</span>     <--Start here
+                </h3>
+                 <div data-reactid="124">
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(20px) Pt(10px) C($c-fuji-grey-j) Fz(xs) Fw(400)" data-reactid="125">some irrelevant stuff here</div>
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2018 with 4 spans that we want to extract </div>
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2017 with 4 spans that we want to extract </div>
+                    ....
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 1996 with 4 spans that we want to extract </div>
+
+            1. Find the span tag that has text "Annual Total Return (%) History". This our starting point
+            2. Navigate up to its parent tag, then go to sibiling tag that has the data we actually need, then grab that data
         """
 
-        #Initialize selenium in Chrome
-        # display = Display(visible=0, size=(800, 600))
-        # display.start()
-        vdisplay = Xvfb()
-        vdisplay.start()
-        driver = webdriver.Chrome("/u/bryanlng/scrape/chromedriver_linux")     #utcs machines location
-        driver.get(url)
+        #Build lxml tree from webpage
+        page = requests.get(url)
+        tree = html.fromstring(page.content)
 
-        #Extract values using find_element_by_xpath.
-        #For reference, we are scraping the data table under the performance page for a mutual fund on Yahoo Finance's "Annual Total Return (%) History"
-        parent = driver.find_element_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/h3/span""")
-        historicals = parent.find_elements_by_xpath("""//*[@id="Col1-0-Performance-Proxy"]/section/div[3]/div""")
-        raw_text = str(historicals[0].text)
-        # driver.quit()
-        # display.stop()
-        driver.quit()
-        vdisplay.stop()
-        return raw_text.split("\n")
+        #Find the H3 tag that says Annual Total Return (%) History
+        h3_span_text = tree.xpath('.//span[text()="Annual Total Return (%) History"]')
 
-    def remove_unnecessary_values(self, values, fund_symbol):
-        """
-        Remove unnecessary values such as ["Year", fund name, "Category", current year, "N/A"]
-        Need to remove current year + n/a, as the return for the current year is "N/A"
-        """
-        now = datetime.datetime.now()
-        to_remove = ["Year", fund_symbol, "Category", str(now.year), "N/A"]
-        return [v for v in values if v not in to_remove]
+        #The table we wnat is in a div tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
+        h3 = h3_span_text[0].getparent()
+        table = h3.getnext()
 
-    def build_json_response(self, values, fund_symbol):
+        #Grab all columns as lxml Element objects that have the historical return data in them, aka if the div tag looks like this: <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="148"></div>
+        viable_columns_as_elements = []
+        for column in list(table):
+            class_item = [item for item in column.items() if "class" in item and YAHOO_FINANCE_SPAN_TAG_CLASS_NAME in item]
+            if len(class_item) == 1:
+                viable_columns_as_elements.append(column)
+
+        return viable_columns_as_elements
+
+    def build_json_response(self, column_data, fund_symbol):
         """
-        Precondition: List length must be a multiple of 3, or else it'll break and we'll get IndexError
-        Assuming 2018 is current year, don't include 2018, start at 2017, as 2018 is "N/A"
-        Converts list of string values --> 2 dicts in the following format:
+        Take the extracted column data and put it into a JSON response format for all data except current year.
+        Converts list of column data as Element objects --> 2 dicts in the following format:
         {
             fund_symbol: {
                 "2017": 27.95,
@@ -131,22 +137,28 @@ class PerformanceStats:
             }
         }
         """
-        response = {}
+
+        current_year = str(datetime.datetime.now().year)
         fund = {}
         category = {}
-        for i in range(0,len(values),3):
-            fund_return = values[i+1]
-            category_return = values[i+2]
-            fund[values[i]] = float(fund_return[:-1])
-            category[values[i]] = float(category_return[:-1])
+        response = {}
 
-        response["fund_symbol"] = fund
-        response["category"] = category
+        for col in column_data:
+            data = [str(span.text_content()) for span in list(col)]
+            if current_year not in data and len(data) == 4:    #Grab column data for all years except current year
+                #Data will be in the format of a list of 4 elements, in the order [year, ui bar, fund return, category return]. We hardcode order, as Elements are returned in document order, according to documentation
+                year = int(data[0])
+                fund_return = float(data[2][:-1])           #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
+                category_return = float(data[3][:-1])       #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
+                fund[year] = fund_return
+                category[year] = category_return
+
+        response[fund_symbol] = fund
+        response["Category"] = category
         return response
-
 
 
 
 p = PerformanceStats()
 print(p.get_trailing_returns("PRHSX"))
-# print(p.get_fund_historical_returns("PRHSX"))
+print(p.get_fund_historical_returns("PRHSX"))
