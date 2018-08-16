@@ -3,3 +3,4 @@ BeautifulSoup4
 requests
 #xvfbwrapper
 lxml
+ast
