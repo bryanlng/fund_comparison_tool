@@ -52,7 +52,7 @@ class PerformanceStats:
                 growths = next(iter(internal_data.values()))
 
                 #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
-                return {year["date"][:len(year["date"])-9] : year["value"] for year in growths}+
+                return {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
 
 
     def get_trailing_returns(self, fund_symbol):
