@@ -3,6 +3,7 @@ import requests
 import json
 import datetime
 from lxml import etree, html
+import ast
 
 class PerformanceStats:
 
@@ -20,8 +21,40 @@ class PerformanceStats:
         stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
         return stats
 
+    def build_10000_growth_url(self, fund_symbol):
+        return "https://markets.ft.com/data/funds/ajax/US/get-comparison-panel?data={\"comparisons\":[\"" + fund_symbol + "\"],\"openPanels\":[\"Performance\"]}"
+
     def get_10000_growth(self, fund_symbol):
-        print("")
+        """
+        Grabs data for hypothetical growth of $10000 
+        Source = markets.ft
+        https://stackoverflow.com/questions/11205386/python-beautifulsoup-get-an-attribute-value-based-on-the-name-attribute
+        https://codereview.stackexchange.com/questions/106719/converting-string-to-dict-using-python-ast-library
+        
+        Returns:
+            -A dictionary where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
+        """
+        response = {}
+        url = self.build_10000_growth_url(fund_symbol)
+        raw_data = requests.get(url)
+        if raw_data.status_code == 200:
+            raw_json = raw_data.json();
+            html = raw_json["html"]
+
+            #Interpret HTML using BeautifulSoup, then extract out data in JSON from <div data_mod_config = ...., class = mod-ui-chart--dynamic>
+            soup = BeautifulSoup(html, 'html.parser')
+            data_mod_config_div = soup.find("div", {"class": "mod-ui-chart--dynamic"})["data-mod-config"]
+            growth_json = ast.literal_eval(data_mod_config_div)
+            internal_data = growth_json["data"]
+            if len(internal_data) >= 1:
+
+                #Access first element in the dict, which is the list of values
+                growths = next(iter(internal_data.values()))
+
+                #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
+                return {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
+
+
 
     def get_trailing_returns(self, fund_symbol):
         """
@@ -37,7 +70,7 @@ class PerformanceStats:
         url = self.build_performance_url(fund_symbol)
         try:
             raw = requests.get(url)
-            if raw != None:
+            if raw.status_code == 200:
                 soup = BeautifulSoup(raw.text, 'html.parser')
 
                 # Find corresponding column values of trailing returns. These will be the values of the dict
@@ -62,7 +95,7 @@ class PerformanceStats:
         Grabs historical annual total returns for each year (current year until earliest date), for both the fund, and its category
         Source = Yahoo Finance
         Input:      Fund symbol, 5 letter acronym, string
-        Returns:    Dict that contains 2 dicts. Each dict has key=year, value=return
+        Returns:    Dict that contains 2 dicts (one for the fund, one for the category). Each dict has key=year, value=return
         """
         url = self.build_historical_url(fund_symbol)
         raw = requests.get(url)
@@ -162,6 +195,7 @@ class PerformanceStats:
 
 p = PerformanceStats()
 fund_symbol = "PRHSX"
+# print(p.get_10000_growth(fund_symbol))
 # print(p.get_trailing_returns(fund_symbol))
 # print(p.get_fund_historical_returns(fund_symbol))
 print(p.get_performance_stats(fund_symbol))
