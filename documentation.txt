@@ -1,0 +1,81 @@
+PerformanceStats:
+    def get_performance_stats(self, fund_symbol):
+        """
+        Grabs performance stats. Grabs 3 things:
+            1. Data for the Growth of $10,000
+            2. Trailing returns for the time periods (1 month, 3 month, 6 month, YTD, 1 year, 3 year, 5 year, 10 year, 15 year)
+            3. Historical annual total returns for each year (current year until earliest date)
+        Return in a JsonResponse encoded object
+        """
+
+    def get_10000_growth(self, fund_symbol):
+        """
+        Grabs data for hypothetical growth of $10000
+        Source = markets.ft
+        https://stackoverflow.com/questions/11205386/python-beautifulsoup-get-an-attribute-value-based-on-the-name-attribute
+        https://codereview.stackexchange.com/questions/106719/converting-string-to-dict-using-python-ast-library
+
+        Returns:
+            -A dictionary where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
+        """
+
+    def get_trailing_returns(self, fund_symbol):
+        """
+        Grabs trailing returns for the time periods (1 month, 3 month, 6 month, YTD, 1 year, 3 year, 5 year, 10 year, 15 year)
+        Source = Morningstar
+        Input:      Fund symbol, 5 letter acronym, string
+        Returns:    Dict with return values, key = time period, value = return
+        """
+    def get_fund_historical_returns(self, fund_symbol):
+        """
+        Grabs historical annual total returns for each year (current year until earliest date), for both the fund, and its category
+        Source = Yahoo Finance
+        Input:      Fund symbol, 5 letter acronym, string
+        Returns:    Dict that contains 2 dicts (one for the fund, one for the category). Each dict has key=year, value=return
+        """
+
+  def extract_raw_column_data(self, fund_symbol, url):
+        """
+        Extracts column data as Element objects from url
+
+        https://stackoverflow.com/questions/14299978/how-to-use-lxml-to-find-an-element-by-text
+
+        Process:
+            Given this html from https://finance.yahoo.com/quote/PRHSX/performance?p=PRHSX:
+            <div class="Mb(25px) " data-reactid="121">
+                 <h3 data-reactid="122">
+                    <span data-reactid="123">Annual Total Return (%) History</span>     <--Start here
+                </h3>
+                 <div data-reactid="124">
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(20px) Pt(10px) C($c-fuji-grey-j) Fz(xs) Fw(400)" data-reactid="125">some irrelevant stuff here</div>  <-- remove
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2018 with 4 spans, ignore </div>  <-- remove
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 2017 with 4 spans that we want to extract </div>
+                    ....
+                    <div class="Bdbw(1px) Bdbc($screenerBorderGray) Bdbs(s) H(25px) Pt(10px)" data-reactid="134"> Data column for 1996 with 4 spans that we want to extract </div>
+
+            1. Find the span tag that has text "Annual Total Return (%) History". This our starting point
+            2. Navigate up to its parent tag, then go to sibiling tag that has the data we actually need, then grab that data
+        """
+
+    def build_json_response(self, column_data, fund_symbol):
+        """
+        Take the extracted column data and put it into a JSON response format for all data except current year.
+        Converts list of column data as Element objects --> 2 dicts in the following format:
+        {
+            fund_symbol: {
+                "2017": 27.95,
+                ...
+                "1996": 26.75
+            },
+            category: {
+                "2017": 24.31,
+                ...
+                "1996": 13.5
+            }
+        }
+        """
+
+    def build_10000_growth_url(self, fund_symbol):
+    def build_performance_url(self, fund_symbol):
+    def build_historical_url(self, fund_symbol):
+    def scrape_historical_returns(self, fund_symbol, url):
