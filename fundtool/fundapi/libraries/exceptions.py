@@ -9,6 +9,5 @@ class SymbolDoesNotExistError(Exception):
 class UIChangedError(Exception):
     request_status = status.HTTP_500_INTERNAL_SERVER_ERROR
 
-
 class SourceEndpointChangedError(Exception):
     request_status = status.HTTP_500_INTERNAL_SERVER_ERROR

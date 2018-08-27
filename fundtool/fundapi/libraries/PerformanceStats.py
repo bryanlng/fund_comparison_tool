@@ -141,7 +141,7 @@ class PerformanceStats:
             return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
     def hasGoodSyntax(self, fund_symbol):
-        return len(fund_symbol) != 5 and re.match('^[\A-Z-]{5}$', k) is not None
+        return len(fund_symbol) == 5 and re.match('^[\A-Z-]{5}$', k) is not None
 
 
 p = PerformanceStats()

@@ -22,6 +22,8 @@ class PerformanceView(APIView):
             p = PerformanceStats()
             response = p.get_performance_stats(fund_symbol)
 
+        except FundException.ImproperSymbolSyntaxError as e:
+            request_status = e.request_status
         except FundException.SymbolDoesNotExistError as e:
             request_status = e.request_status
         except FundException.UIChangedError as e:

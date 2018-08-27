@@ -1,6 +1,6 @@
 import unittest
 
-from fundtool.fundapi.libraries.PerformanceStats import PerformanceStats
+import PerformanceStats
 
 class UtilTests(unittest.TestCase):
 
