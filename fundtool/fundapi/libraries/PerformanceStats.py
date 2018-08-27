@@ -1,20 +1,23 @@
 from bs4 import BeautifulSoup
+from lxml import etree, html
+from enum import Enum
 import requests
 import json
 import datetime
-from lxml import etree, html
 import ast
-from enum import Enum
+import re
 
+import fundtool.fundapi.libraries.PerformanceStats as FundException
 
 class Section(Enum):
-    PERFORMANCE = "performance"
+    TRAILING = "trailing_returns"
     GROWTH = "10000_growth"
     HISTORICAL = "historical"
 
 class PerformanceStats:
 
     def get_performance_stats(self, fund_symbol):
+        fund_symbol = fund_symbol.upper()
         stats = {}
         stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
         stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
@@ -31,16 +34,24 @@ class PerformanceStats:
 
             #Interpret HTML using BeautifulSoup, then extract out data in JSON from <div data_mod_config = ...., class = mod-ui-chart--dynamic>
             soup = BeautifulSoup(html, 'html.parser')
-            data_mod_config_div = soup.find("div", {"class": "mod-ui-chart--dynamic"})["data-mod-config"]
-            growth_json = ast.literal_eval(data_mod_config_div)
-            internal_data = growth_json["data"]
-            if len(internal_data) >= 1:
+            response = {}
+            try:
+                data_mod_config_div = soup.find("div", {"class": "mod-ui-chart--dynamic"})["data-mod-config"]
+                growth_json = ast.literal_eval(data_mod_config_div)
+                internal_data = growth_json["data"]
+                if len(internal_data) >= 1:
 
-                #Access first element in the dict, which is the list of values
-                growths = next(iter(internal_data.values()))
+                    #Access first element in the dict, which is the list of values
+                    growths = next(iter(internal_data.values()))
 
-                #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
-                return {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
+                    #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
+                    response = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
+            except Exception as e:
+                raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
+
+            return response
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Invalid symbol name: {fund_symbol}")
 
 
     def get_trailing_returns(self, fund_symbol):
@@ -48,7 +59,7 @@ class PerformanceStats:
         timespans = ["1-Month", "3-Month", "6-Month", "YTD",
                      "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
         response = {}
-        url = self.build_url(Section.PERFORMANCE, fund_symbol)
+        url = self.build_url(Section.TRAILING, fund_symbol)
         try:
             raw = requests.get(url)
             if raw.status_code == 200:
@@ -122,12 +133,16 @@ class PerformanceStats:
         return response
 
     def build_url(self, section, fund_symbol):
-        if section == Section.PERFORMANCE:
+        if section == Section.TRAILING:
             return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="
         elif section == Section.GROWTH:
             return "https://markets.ft.com/data/funds/ajax/US/get-comparison-panel?data={\"comparisons\":[\"" + fund_symbol + "\"],\"openPanels\":[\"Performance\"]}"
         else:
             return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
+
+    def hasGoodSyntax(self, fund_symbol):
+        return len(fund_symbol) != 5 and re.match('^[\A-Z-]{5}$', k) is not None
+
 
 p = PerformanceStats()
 fund_symbol = "PRHSX"

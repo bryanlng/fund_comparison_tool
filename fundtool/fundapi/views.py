@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
 
-import fundtool.fundapi.libraries.PerformanceStats as FundException
+import fundtool.fundapi.libraries.exceptions as FundException
 
 import fundtool.fundapi.libraries.PerformanceStats
 
