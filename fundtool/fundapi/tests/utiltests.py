@@ -1,28 +1,34 @@
 import unittest
+import sys
 
-import PerformanceStats
+print("current sys path: ", sys.path)
+
+from fundtool.fundapi.libraries import PerformanceStats
 
 class UtilTests(unittest.TestCase):
 
     p = PerformanceStats()
 
     def testHappyPath(self):
-        self.assertTrue(p.hasGoodSyntax("PRHSX"))
+        self.assertTrue(p.hasProperFormat("PRHSX"))
+
+    def testHappyPathButNotAnActualSymbo(self):
+        self.assertTrue(p.hasProperFormat("ZZZZZ"))
 
     def testContainsNumbers(self):
-        self.assertFalse(p.hasGoodSyntax("334SX"))
+        self.assertFalse(p.hasProperFormat("334SX"))
 
     def testEmpty(self):
-        self.assertFalse(p.hasGoodSyntax(""))
+        self.assertFalse(p.hasProperFormat(""))
 
     def testNotLengthofFive(self):
-        self.assertFalse(p.hasGoodSyntax("PRHX"))
+        self.assertFalse(p.hasProperFormat("PRHX"))
 
     def testLowerCase(self):
-        self.assertFalse(p.hasGoodSyntax("PRsHX"))
+        self.assertFalse(p.hasProperFormat("PRsHX"))
 
     def testGreaterLengthofFive(self):
-        self.assertFalse(p.hasGoodSyntax("PRHSSX"))
+        self.assertFalse(p.hasProperFormat("PRHSSX"))
 
 
 if __name__ == '__main__':

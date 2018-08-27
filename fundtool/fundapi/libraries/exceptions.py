@@ -1,6 +1,6 @@
 from rest_framework import status
 
-class ImproperSymbolSyntaxError(Exception):
+class ImproperSymbolFormatError(Exception):
     request_status = status.HTTP_400_BAD_REQUEST
 
 class SymbolDoesNotExistError(Exception):

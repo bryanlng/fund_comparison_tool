@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
 
-import fundtool.fundapi.libraries.exceptions as FundException
+# import fundtool.fundapi.libraries.exceptions as FundException
 
-import fundtool.fundapi.libraries.PerformanceStats
+# import fundtool.fundapi.libraries.PerformanceStats
 
 
 # Create your views here.
@@ -22,7 +22,7 @@ class PerformanceView(APIView):
             p = PerformanceStats()
             response = p.get_performance_stats(fund_symbol)
 
-        except FundException.ImproperSymbolSyntaxError as e:
+        except FundException.ImproperSymbolFormatError as e:
             request_status = e.request_status
         except FundException.SymbolDoesNotExistError as e:
             request_status = e.request_status

@@ -6,8 +6,9 @@ import json
 import datetime
 import ast
 import re
+import sys
 
-import fundtool.fundapi.libraries.PerformanceStats as FundException
+import exceptions as FundException
 
 class Section(Enum):
     TRAILING = "trailing_returns"
@@ -19,16 +20,24 @@ class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
         fund_symbol = fund_symbol.upper()
         stats = {}
-        stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
-        stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
-        stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+        if self.hasProperFormat(fund_symbol):
+            stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+            stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
+            stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+        else:
+            FundException.ImproperSymbolFormatError() 
+
         return stats
 
     def get_10000_growth(self, fund_symbol):
         response = {}
+        response[fund_symbol] = {}
+
         url = self.build_url(Section.GROWTH, fund_symbol)
         raw_data = requests.get(url)
-        if raw_data.status_code == 200:
+        print(raw_data.text)
+
+        if raw_data != None and raw_data.status_code == 200:
             raw_json = raw_data.json();
             html = raw_json["html"]
 
@@ -45,13 +54,15 @@ class PerformanceStats:
                     growths = next(iter(internal_data.values()))
 
                     #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
-                    response = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
+                    response[fund_symbol] = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
             except Exception as e:
-                raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
-
-            return response
+                # raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
+                raise FundException.UIChangedError(e)
         else:
-            raise FundException.SymbolDoesNotExistError(f"Invalid symbol name: {fund_symbol}")
+            # raise FundException.SymbolDoesNotExistError(f"Invalid symbol name: {fund_symbol}")
+            raise FundException.SymbolDoesNotExistError(e)
+
+        return response     
 
 
     def get_trailing_returns(self, fund_symbol):
@@ -73,6 +84,7 @@ class PerformanceStats:
                     if row_header.text == fund_symbol:
                         quarterly_returns = [col.text for col in row.findAll("td")]
                         response = dict(zip(timespans, quarterly_returns))
+
         except Exception as e: # Not good to have a catch-all exception, but I'll create custom exceptions later
             print(e)
 
@@ -123,8 +135,17 @@ class PerformanceStats:
             if current_year not in data and len(data) == 4:    #Grab column data for all years except current year
                 #Data will be in the format of a list of 4 elements, in the order [year, ui bar, fund return, category return]. We hardcode order, as Elements are returned in document order, according to documentation
                 year = int(data[0])
-                fund_return = float(data[2][:-1])           #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
-                category_return = float(data[3][:-1])       #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
+                fund_return_raw = data[2]
+                category_return_raw = data[3]
+                fund_return = 0.012345678987654321              #If return is "N/A", then it will have this value
+                category_return = 0.012345678987654321
+
+                if fund_return_raw != "N/A":
+                    fund_return = float(data[2][:-1])           #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
+
+                if category_return_raw != "N/A":
+                    category_return = float(data[3][:-1])       #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
+
                 fund[year] = fund_return
                 category[year] = category_return
 
@@ -140,12 +161,12 @@ class PerformanceStats:
         else:
             return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
-    def hasGoodSyntax(self, fund_symbol):
-        return len(fund_symbol) == 5 and re.match('^[\A-Z-]{5}$', k) is not None
+    def hasProperFormat(self, fund_symbol):
+        return len(fund_symbol) == 5 and re.match('^[\A-Z-]{5}$', fund_symbol) is not None
 
 
 p = PerformanceStats()
-fund_symbol = "PRHSX"
+fund_symbol = "FFFFF"
 print(p.get_10000_growth(fund_symbol))
 # print(p.get_trailing_returns(fund_symbol))
 # print(p.get_fund_historical_returns(fund_symbol))
