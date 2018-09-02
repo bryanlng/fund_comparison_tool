@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from lxml import etree, html
-from enum import Enum
 import requests
 import json
 import datetime
@@ -8,18 +7,14 @@ import ast
 import re
 import sys
 
+import fundapi.libraries.util as Util
+from fundapi.libraries.util import Section
 import fundapi.libraries.exceptions as FundException
-
-class Section(Enum):
-    TRAILING = "trailing_returns"
-    GROWTH = "10000_growth"
-    HISTORICAL = "historical"
-
 
 class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
         fund_symbol = fund_symbol.upper()
-        self.validateFormat(fund_symbol)
+        Util.validateFormat(fund_symbol)
 
         stats = {}
         stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
@@ -31,7 +26,7 @@ class PerformanceStats:
     def get_10000_growth(self, fund_symbol):
         response = {}
         response[fund_symbol] = {}
-        url = self.build_url(Section.GROWTH, fund_symbol)
+        url = Util.build_url(Section.GROWTH, fund_symbol)
         raw_data = requests.get(url)
         # print(raw_data.text)
 
@@ -68,7 +63,7 @@ class PerformanceStats:
         timespans = ["1-Month", "3-Month", "6-Month", "YTD",
                      "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
         response = {}
-        url = self.build_url(Section.TRAILING, fund_symbol)
+        url = Util.build_url(Section.TRAILING, fund_symbol)
         try:
             raw = requests.get(url)
             if raw.status_code == 200:
@@ -90,7 +85,7 @@ class PerformanceStats:
 
 
     def get_fund_historical_returns(self, fund_symbol):
-        url = self.build_url(Section.HISTORICAL, fund_symbol)
+        url = Util.build_url(Section.HISTORICAL, fund_symbol)
         raw = requests.get(url)
         if raw != None:
             historical_returns = self.scrape_historical_returns(fund_symbol, url)
@@ -153,21 +148,6 @@ class PerformanceStats:
         response[fund_symbol] = fund
         response["Category"] = category
         return response
-
-
-    def build_url(self, section, fund_symbol):
-        if section == Section.TRAILING:
-            return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="
-        elif section == Section.GROWTH:
-            return "https://markets.ft.com/data/funds/ajax/US/get-comparison-panel?data={\"comparisons\":[\"" + fund_symbol + "\"],\"openPanels\":[\"Performance\"]}"
-        else:
-            return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
-
-
-    def validateFormat(self, fund_symbol):
-        if not len(fund_symbol) == 5 and re.match('^[A-Z]{5}$', fund_symbol) is not None:
-            raise FundException.ImproperSymbolFormatError()
-
 
 # import exceptions as FundException
 # p = PerformanceStats()
