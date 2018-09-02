@@ -12,8 +12,6 @@ import fundapi.libraries.exceptions as FundException
 
 class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
-        fund_symbol = fund_symbol.upper()
-
         stats = {}
         try:
             Util.validateFormat(fund_symbol)
