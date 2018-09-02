@@ -3,6 +3,7 @@ beautifulsoup4==4.6.1
 certifi==2017.7.27.1
 chardet==3.0.4
 Django==2.1
+djangorestframework==3.8.2
 idna==2.6
 lxml==4.2.4
 pycodestyle==2.3.1

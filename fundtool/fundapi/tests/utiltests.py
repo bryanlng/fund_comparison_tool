@@ -3,7 +3,8 @@ import sys
 
 print("current sys path: ", sys.path)
 
-from fundtool.fundapi.libraries import PerformanceStats
+from fundtool.fundapi.libraries.PerformanceStats import PerformanceStats
+
 
 class UtilTests(unittest.TestCase):
 

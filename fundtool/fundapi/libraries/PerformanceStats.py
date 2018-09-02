@@ -25,7 +25,7 @@ class PerformanceStats:
             stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
             stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
         else:
-            FundException.ImproperSymbolFormatError() 
+            raise FundException.ImproperSymbolFormatError()
 
         return stats
 
@@ -60,9 +60,9 @@ class PerformanceStats:
                 raise FundException.UIChangedError(e)
         else:
             # raise FundException.SymbolDoesNotExistError(f"Invalid symbol name: {fund_symbol}")
-            raise FundException.SymbolDoesNotExistError(e)
+            raise FundException.SymbolDoesNotExistError()
 
-        return response     
+        return response
 
 
     def get_trailing_returns(self, fund_symbol):

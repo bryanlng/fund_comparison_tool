@@ -1,12 +1,14 @@
+# import sys
+# print("current sys path: ", sys.path)
+
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
 
-# import fundtool.fundapi.libraries.exceptions as FundException
-
-# import fundtool.fundapi.libraries.PerformanceStats
+import fundtool.fundapi.libraries.exceptions as FundException
+import fundtool.fundapi.libraries.PerformanceStats
 
 
 # Create your views here.
@@ -16,6 +18,7 @@ class PerformanceView(APIView):
         An endpoint to grab Performance data for a fund
         """
 
+        print("fund_symbol: ", fund_symbol)
         response = {}
         request_status = status.HTTP_200_OK
         try:
