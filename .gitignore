@@ -1,6 +1,6 @@
 # Ignore compiled python files
 *.py[co]
-__pycache
+__pycache__
 
 .DS_Store
 
