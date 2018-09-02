@@ -14,7 +14,7 @@ class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
         stats = {}
         try:
-            Util.validateFormat(fund_symbol)
+            Util.validate_format(fund_symbol)
             stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
             stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
             stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)

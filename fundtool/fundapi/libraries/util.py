@@ -15,7 +15,7 @@ def build_url(section, fund_symbol):
     else:
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
-def validateFormat(fund_symbol):
+def validate_format(fund_symbol):
     uppercased = fund_symbol.upper()
     if len(uppercased) != 5 or re.match('^[A-Z]{5}$', uppercased) is None:
         raise FundException.ImproperSymbolFormatError(f"Fund symbol is not in the proper format (needs to be 5 characters, capitalized, no spaces, A-Z): {fund_symbol}")
