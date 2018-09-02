@@ -17,8 +17,8 @@ class PerformanceStats:
         stats = {}
         try:
             Util.validateFormat(fund_symbol)
-            stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
-            # stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
+            # stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+            stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
             # stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
 
         except FundException.ImproperSymbolFormatError as e:
@@ -98,37 +98,42 @@ class PerformanceStats:
     def get_fund_historical_returns(self, fund_symbol):
         url = Util.build_url(Section.HISTORICAL, fund_symbol)
         raw = requests.get(url)
-        if raw != None:
-            historical_returns = self.scrape_historical_returns(fund_symbol, url)
-            if historical_returns != None:
-                return historical_returns
+        if raw.status_code == 200 and raw.text != "":
+            return self.retrieve_historical_returns(fund_symbol, url, raw)
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
 
-
-    def scrape_historical_returns(self, fund_symbol, url):
-        columns = self.extract_historical_column_data(fund_symbol, url)
+    def retrieve_historical_returns(self, fund_symbol, url, page):
+        columns = self.scrape_historical_column_data(fund_symbol, url, page)
         return self.build_historical_return_response(columns, fund_symbol)
 
-
-    def extract_historical_column_data(self, fund_symbol, url):
+    def scrape_historical_column_data(self, fund_symbol, url, page):
         #Build lxml tree from webpage
-        page = requests.get(url)
         tree = html.fromstring(page.content)
 
         #Find the H3 tag that says Annual Total Return (%) History
         h3_span_text = tree.xpath('.//span[text()="Annual Total Return (%) History"]')
 
-        #The table we wnat is idiv tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
-        h3 = h3_span_text[0].getparent()
-        table = h3.getnext()
+        if len(h3_span_text) > 0:
+            #The table we wnat is the div tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
+            h3 = h3_span_text[0].getparent()
+            table = h3.getnext()
 
-        #Grab all columns as lxml Element objects. This includes the 2 columns we don't want (placeholder value column + current year), so we need to filter them out.
-        columns = [column for column in list(table)]
+            #Grab all columns as lxml Element objects. This includes the 2 columns we don't want (placeholder value column + current year), so we need to filter them out.
+            columns = [column for column in list(table)]
 
-        #Assuming elements are in document order, we can just remove the first 2 elements of the list
-        del columns[0:2]
+            #Assuming elements are in document order, we can just remove the first 2 elements of the list
+            del columns[0:2]
 
-        #Return filtered version
-        return columns
+            #Return filtered version
+            return columns
+
+        else:
+            redirected_to_error_page = tree.xpath('.//span[contains(text(),"Symbols similar to ")]')
+            if len(redirected_to_error_page) > 0:
+                raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
+            else:
+                raise FundException.UIChangedError("UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
 
 
     def build_historical_return_response(self, column_data, fund_symbol):
