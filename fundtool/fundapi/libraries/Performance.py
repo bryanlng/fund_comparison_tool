@@ -17,9 +17,9 @@ class PerformanceStats:
         stats = {}
         try:
             Util.validateFormat(fund_symbol)
-            # stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+            stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
             stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
-            # stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+            stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
 
         except FundException.ImproperSymbolFormatError as e:
             raise FundException.ImproperSymbolFormatError(e)
@@ -36,33 +36,34 @@ class PerformanceStats:
     def get_10000_growth(self, fund_symbol):
         response = {}
         url = Util.build_url(Section.GROWTH, fund_symbol)
-        raw_data = requests.get(url)
-        # print(raw_data.text)
+        raw = requests.get(url)
 
-        if raw_data != None and raw_data.status_code == 200:
-            raw_json = raw_data.json();
-            html = raw_json["html"]
+        if raw.status_code == 200 and raw.text != "":
+            raw_json = {}
+            try:
+                raw_json = raw.json();
+            except Exception as e:
+                raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for $10000 growth: Symbol does not exist: {fund_symbol}")
 
             #Interpret HTML using BeautifulSoup, then extract out data in JSON from <div data_mod_config = ...., class = mod-ui-chart--dynamic>
+            html = raw_json["html"]
             soup = BeautifulSoup(html, 'html.parser')
             response = {}
-            try:
-                data_mod_config_div = soup.find("div", {"class": "mod-ui-chart--dynamic"})["data-mod-config"]
+            data_mod_config_div = soup.find("div", {"class": "mod-ui-chart--dynamic"})["data-mod-config"]
+            if data_mod_config_div != "":
+                #Convert dictionary in string form to an actual dictionary
                 growth_json = ast.literal_eval(data_mod_config_div)
                 internal_data = growth_json["data"]
                 if len(internal_data) >= 1:
-
                     #Access first element in the dict, which is the list of values
                     growths = next(iter(internal_data.values()))
 
                     #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
                     response = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
-            except Exception as e:
-                # raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
-                raise FundException.UIChangedError(e)
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for $10000 growth: UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
         else:
-            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
-            # raise FundException.SymbolDoesNotExistError()
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for $10000 growth: Symbol does not exist: {fund_symbol}")
 
         return response
 
@@ -88,9 +89,9 @@ class PerformanceStats:
                         quarterly_returns = [col.text for col in row.findAll("td")]
                         response = dict(zip(timespans, quarterly_returns))
             else:
-                raise FundException.UIChangedError("UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
         else:
-            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
 
         return response
 
@@ -101,7 +102,7 @@ class PerformanceStats:
         if raw.status_code == 200 and raw.text != "":
             return self.retrieve_historical_returns(fund_symbol, url, raw)
         else:
-            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for historical returns: Symbol does not exist: {fund_symbol}")
 
     def retrieve_historical_returns(self, fund_symbol, url, page):
         columns = self.scrape_historical_column_data(fund_symbol, url, page)
@@ -131,9 +132,9 @@ class PerformanceStats:
         else:
             redirected_to_error_page = tree.xpath('.//span[contains(text(),"Symbols similar to ")]')
             if len(redirected_to_error_page) > 0:
-                raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
+                raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for historical returns: Symbol does not exist: {fund_symbol}")
             else:
-                raise FundException.UIChangedError("UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for historical returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
 
 
     def build_historical_return_response(self, column_data, fund_symbol):
