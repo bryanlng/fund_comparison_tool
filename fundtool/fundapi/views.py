@@ -34,11 +34,19 @@ class PerformanceView(APIView):
 
         except FundException.ImproperSymbolFormatError as e:
             request_status = e.request_status
+            response["error"] = str(e.args[0])
+            response["HTTP_ERROR_CODE"] = request_status
         except FundException.SymbolDoesNotExistError as e:
             request_status = e.request_status
+            response["error"] = str(e.args[0])
+            response["HTTP_ERROR_CODE"] = request_status
         except FundException.UIChangedError as e:
             request_status = e.request_status
+            response["error"] = str(e.args[0])
+            response["HTTP_ERROR_CODE"] = request_status
         except FundException.SourceEndpointChangedError as e:
             request_status = e.request_status
+            response["error"] = str(e.args[0])
+            response["HTTP_ERROR_CODE"] = request_status
 
         return JsonResponse(response, json_dumps_params=extra_params, status=request_status)

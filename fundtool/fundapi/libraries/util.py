@@ -17,4 +17,4 @@ def build_url(section, fund_symbol):
 
 def validateFormat(fund_symbol):
     if len(fund_symbol) != 5 or re.match('^[A-Z]{5}$', fund_symbol) is None:
-        raise FundException.ImproperSymbolFormatError()
+        raise FundException.ImproperSymbolFormatError(f"Fund symbol is not in the proper format (needs to be 5 characters, capitalized, no spaces, A-Z): {fund_symbol}")

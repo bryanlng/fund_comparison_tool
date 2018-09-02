@@ -61,8 +61,8 @@ class PerformanceStats:
                 # raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
                 raise FundException.UIChangedError(e)
         else:
-            # raise FundException.SymbolDoesNotExistError(f"Invalid symbol name: {fund_symbol}")
-            raise FundException.SymbolDoesNotExistError()
+            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
+            # raise FundException.SymbolDoesNotExistError()
 
         return response
 
@@ -73,22 +73,24 @@ class PerformanceStats:
                      "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
         response = {}
         url = Util.build_url(Section.TRAILING, fund_symbol)
-        try:
-            raw = requests.get(url)
-            if raw.status_code == 200:
-                soup = BeautifulSoup(raw.text, 'html.parser')
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            soup = BeautifulSoup(raw.text, 'html.parser')
 
-                # Find corresponding column values of trailing returns. These will be the values of the dict
-                table = soup.find("table")
+            # Find corresponding column values of trailing returns. These will be the values of the dict
+            table = soup.find("table")
+
+            if table is not None:
                 rows = table.findAll(lambda tag: tag.name == 'tr')
                 for row in rows:
                     row_header = row.find("th")
                     if row_header.text == fund_symbol:
                         quarterly_returns = [col.text for col in row.findAll("td")]
                         response = dict(zip(timespans, quarterly_returns))
-
-        except Exception as e: # Not good to have a catch-all exception, but I'll create custom exceptions later
-            print(e)
+            else:
+                raise FundException.UIChangedError("UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Symbol does not exist: {fund_symbol}")
 
         return response
 
@@ -142,8 +144,8 @@ class PerformanceStats:
                 year = int(data[0])
                 fund_return_raw = data[2]
                 category_return_raw = data[3]
-                fund_return = 0.012345678987654321              #If return is "N/A", then it will have this value
-                category_return = 0.012345678987654321
+                fund_return = "None available for current year"              #If return is "N/A", then it will have this value
+                category_return = "None available for current year"
 
                 if fund_return_raw != "N/A":
                     fund_return = float(data[2][:-1])           #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
