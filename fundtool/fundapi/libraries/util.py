@@ -16,7 +16,5 @@ def build_url(section, fund_symbol):
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
 def validateFormat(fund_symbol):
-    print("validate format")
     if len(fund_symbol) != 5 or re.match('^[A-Z]{5}$', fund_symbol) is None:
-        print("raise exception")
         raise FundException.ImproperSymbolFormatError()
