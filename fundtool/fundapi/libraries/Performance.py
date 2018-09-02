@@ -8,7 +8,7 @@ import ast
 import re
 import sys
 
-import exceptions as FundException
+import fundapi.libraries.exceptions as FundException
 
 class Section(Enum):
     TRAILING = "trailing_returns"
@@ -17,8 +17,12 @@ class Section(Enum):
 
 class PerformanceStats:
 
+    # def __init__(self, fund_symbol):
+    #     self.fund_symbol = fund_symbol
+
     def get_performance_stats(self, fund_symbol):
         fund_symbol = fund_symbol.upper()
+        print("after upper:", fund_symbol)
         stats = {}
         if self.hasProperFormat(fund_symbol):
             stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
@@ -35,7 +39,7 @@ class PerformanceStats:
 
         url = self.build_url(Section.GROWTH, fund_symbol)
         raw_data = requests.get(url)
-        print(raw_data.text)
+        # print(raw_data.text)
 
         if raw_data != None and raw_data.status_code == 200:
             raw_json = raw_data.json();
@@ -162,12 +166,13 @@ class PerformanceStats:
             return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
     def hasProperFormat(self, fund_symbol):
-        return len(fund_symbol) == 5 and re.match('^[\A-Z-]{5}$', fund_symbol) is not None
+        return len(fund_symbol) == 5 and re.match('^[A-Z]{5}$', fund_symbol) is not None
 
 
-p = PerformanceStats()
-fund_symbol = "FFFFF"
-print(p.get_10000_growth(fund_symbol))
+# import exceptions as FundException
+# p = PerformanceStats()
+# fund_symbol = "PRHSX"
+# print(p.get_10000_growth(fund_symbol))
 # print(p.get_trailing_returns(fund_symbol))
 # print(p.get_fund_historical_returns(fund_symbol))
 # print(p.get_performance_stats(fund_symbol))
