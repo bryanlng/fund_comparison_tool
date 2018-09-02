@@ -1,5 +1,6 @@
 import fundapi.libraries.exceptions as FundException
 from enum import Enum
+import re
 
 class Section(Enum):
     TRAILING = "trailing_returns"
@@ -15,5 +16,7 @@ def build_url(section, fund_symbol):
         return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
 def validateFormat(fund_symbol):
-    if not len(fund_symbol) == 5 and re.match('^[A-Z]{5}$', fund_symbol) is not None:
+    print("validate format")
+    if len(fund_symbol) != 5 or re.match('^[A-Z]{5}$', fund_symbol) is None:
+        print("raise exception")
         raise FundException.ImproperSymbolFormatError()

@@ -4,7 +4,6 @@ import requests
 import json
 import datetime
 import ast
-import re
 import sys
 
 import fundapi.libraries.util as Util
@@ -14,18 +13,28 @@ import fundapi.libraries.exceptions as FundException
 class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
         fund_symbol = fund_symbol.upper()
-        Util.validateFormat(fund_symbol)
 
         stats = {}
-        stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
-        stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
-        stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+        try:
+            Util.validateFormat(fund_symbol)
+            stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+            # stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
+            # stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
+
+        except FundException.ImproperSymbolFormatError as e:
+            raise FundException.ImproperSymbolFormatError(e)
+        except FundException.SymbolDoesNotExistError as e:
+            raise FundException.SymbolDoesNotExistError(e)
+        except FundException.UIChangedError as e:
+            raise FundException.UIChangedError(e)
+        except FundException.SourceEndpointChangedError as e:
+            raise FundException.SourceEndpointChangedError(e)
+
         return stats
 
 
     def get_10000_growth(self, fund_symbol):
         response = {}
-        response[fund_symbol] = {}
         url = Util.build_url(Section.GROWTH, fund_symbol)
         raw_data = requests.get(url)
         # print(raw_data.text)
@@ -47,7 +56,7 @@ class PerformanceStats:
                     growths = next(iter(internal_data.values()))
 
                     #Parse into a dict where key = date (YYYY-MM-DD, removing the "T00:00:00" from the end), value = expected dollar value that year
-                    response[fund_symbol] = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
+                    response = {year["date"][:len(year["date"])-9] : year["value"] for year in growths}
             except Exception as e:
                 # raise FundException.UIChangedError(f"UI changed for symbol name: {fund_symbol}; thus, we cannot scrape")
                 raise FundException.UIChangedError(e)
@@ -94,11 +103,11 @@ class PerformanceStats:
 
 
     def scrape_historical_returns(self, fund_symbol, url):
-        columns = self.extract_raw_column_data(fund_symbol, url)
-        return self.build_json_response(columns, fund_symbol)
+        columns = self.extract_historical_column_data(fund_symbol, url)
+        return self.build_historical_return_response(columns, fund_symbol)
 
 
-    def extract_raw_column_data(self, fund_symbol, url):
+    def extract_historical_column_data(self, fund_symbol, url):
         #Build lxml tree from webpage
         page = requests.get(url)
         tree = html.fromstring(page.content)
@@ -106,7 +115,7 @@ class PerformanceStats:
         #Find the H3 tag that says Annual Total Return (%) History
         h3_span_text = tree.xpath('.//span[text()="Annual Total Return (%) History"]')
 
-        #The table we wnat is in a div tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
+        #The table we wnat is idiv tag, which is a sibling to h3. The h3 and the div tag are under one overarching div tag. Get h3's sibiling
         h3 = h3_span_text[0].getparent()
         table = h3.getnext()
 
@@ -120,7 +129,7 @@ class PerformanceStats:
         return columns
 
 
-    def build_json_response(self, column_data, fund_symbol):
+    def build_historical_return_response(self, column_data, fund_symbol):
         current_year = str(datetime.datetime.now().year)
         fund = {}
         category = {}
