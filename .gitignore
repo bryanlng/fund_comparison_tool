@@ -1,0 +1,8 @@
+# Ignore compiled python files
+*.py[co]
+__pycache
+
+.DS_Store
+
+# Most projects end up with a local.env that can contain config settings/credentials
+local.env

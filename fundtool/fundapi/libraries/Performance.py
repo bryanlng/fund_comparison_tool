@@ -15,28 +15,22 @@ class Section(Enum):
     GROWTH = "10000_growth"
     HISTORICAL = "historical"
 
+
 class PerformanceStats:
-
-    # def __init__(self, fund_symbol):
-    #     self.fund_symbol = fund_symbol
-
     def get_performance_stats(self, fund_symbol):
         fund_symbol = fund_symbol.upper()
-        print("after upper:", fund_symbol)
-        stats = {}
-        if self.hasProperFormat(fund_symbol):
-            stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
-            stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
-            stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
-        else:
-            raise FundException.ImproperSymbolFormatError()
+        self.validateFormat(fund_symbol)
 
+        stats = {}
+        stats["trailing_returns"] = self.get_trailing_returns(fund_symbol)
+        stats["historical_returns"] = self.get_fund_historical_returns(fund_symbol)
+        stats["10000_growth_data"] = self.get_10000_growth(fund_symbol)
         return stats
+
 
     def get_10000_growth(self, fund_symbol):
         response = {}
         response[fund_symbol] = {}
-
         url = self.build_url(Section.GROWTH, fund_symbol)
         raw_data = requests.get(url)
         # print(raw_data.text)
@@ -103,9 +97,11 @@ class PerformanceStats:
             if historical_returns != None:
                 return historical_returns
 
+
     def scrape_historical_returns(self, fund_symbol, url):
         columns = self.extract_raw_column_data(fund_symbol, url)
         return self.build_json_response(columns, fund_symbol)
+
 
     def extract_raw_column_data(self, fund_symbol, url):
         #Build lxml tree from webpage
@@ -127,6 +123,7 @@ class PerformanceStats:
 
         #Return filtered version
         return columns
+
 
     def build_json_response(self, column_data, fund_symbol):
         current_year = str(datetime.datetime.now().year)
@@ -157,6 +154,7 @@ class PerformanceStats:
         response["Category"] = category
         return response
 
+
     def build_url(self, section, fund_symbol):
         if section == Section.TRAILING:
             return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="
@@ -165,8 +163,10 @@ class PerformanceStats:
         else:
             return "https://finance.yahoo.com/quote/" + fund_symbol + "/performance?p=" + fund_symbol
 
-    def hasProperFormat(self, fund_symbol):
-        return len(fund_symbol) == 5 and re.match('^[A-Z]{5}$', fund_symbol) is not None
+
+    def validateFormat(self, fund_symbol):
+        if not len(fund_symbol) == 5 and re.match('^[A-Z]{5}$', fund_symbol) is not None:
+            raise FundException.ImproperSymbolFormatError()
 
 
 # import exceptions as FundException
