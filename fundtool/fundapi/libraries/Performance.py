@@ -12,6 +12,7 @@ import fundapi.libraries.exceptions as FundException
 
 class PerformanceStats:
     def get_performance_stats(self, fund_symbol):
+        fund_symbol = fund_symbol.upper()
         stats = {}
         try:
             Util.validate_format(fund_symbol)
@@ -74,6 +75,7 @@ class PerformanceStats:
         url = Util.build_url(Section.TRAILING, fund_symbol)
         raw = requests.get(url)
         if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
             soup = BeautifulSoup(raw.text, 'html.parser')
 
             # Find corresponding column values of trailing returns. These will be the values of the dict
