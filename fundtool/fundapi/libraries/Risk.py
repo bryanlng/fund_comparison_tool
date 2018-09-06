@@ -22,15 +22,27 @@ class RiskStats:
         """
 
         #Add data from capture ratios first. We can get all data in capture ratios in 1 get request, but need multiple for mpt and volatility
-        response = self.get_capture_ratios(fund_symbol)
+        fund_symbol = fund_symbol.upper()
+        response = {}
+        try:
+            Util.validate_format(fund_symbol)
+            response = self.get_capture_ratios(fund_symbol)
+            timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
+            for timespan in timespans:
+                #Extract and aggregate data for MPT stats and Volatility stats
+                mpt_and_volatility = self.collect_column_data(fund_symbol, timespan)
 
-        timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
-        for timespan in timespans:
-            #Extract and aggregate data for MPT stats and Volatility stats
-            mpt_and_volatility = self.collect_column_data(fund_symbol, timespan)
+                #Add these values into the current timespan dict along with the capture ratios
+                response[timespan] = {**response[timespan], **mpt_and_volatility}
 
-            #Add these values into the current timespan dict along with the capture ratios
-            response[timespan] = {**response[timespan], **mpt_and_volatility}
+        except FundException.ImproperSymbolFormatError as e:
+            raise FundException.ImproperSymbolFormatError(e)
+        except FundException.SymbolDoesNotExistError as e:
+            raise FundException.SymbolDoesNotExistError(e)
+        except FundException.UIChangedError as e:
+            raise FundException.UIChangedError(e)
+        except FundException.SourceEndpointChangedError as e:
+            raise FundException.SourceEndpointChangedError(e)
 
         return response
 
