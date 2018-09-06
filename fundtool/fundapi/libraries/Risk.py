@@ -21,8 +21,8 @@ class RiskStats:
         Return in a JsonResponse encoded object
         """
         response = {}
-        # response["mpt_stats"] = self.get_mpt_stats(fund_symbol)
-        # response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
+        response["mpt_stats"] = self.get_mpt_stats(fund_symbol)
+        response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
         response["capture_ratios"] = self.get_capture_ratios(fund_symbol)
         return response
 
@@ -90,9 +90,9 @@ class RiskStats:
                             del stats[len(stats)-1]                             #Remove unnecessary values
                             response[timespan] = dict(zip(fields, stats))
                 else:
-                    raise FundException.UIChangedError(f"Error while retrieving data for risk mpt: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                    raise FundException.UIChangedError(f"Error while retrieving data for risk volatility statistics: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
             else:
-                raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk mpt: Symbol does not exist: {fund_symbol}")
+                raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk volatility statistics: Symbol does not exist: {fund_symbol}")
 
         return response
 
@@ -101,7 +101,7 @@ class RiskStats:
         Gets upside and downside capture ratios for 1 year, 3 year, 5 year, 10 year, 15 year
         """
         # Build a dictionary, where key = time period, value = trailing return for that time period.
-        timespans = ["1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
+        timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
         upsidedownside_fields = ["Upside ratio", "Downside ratio"]
         fields = ["Standard Deviation", "Return", "Sharpe Ratio", "Sortino Ratio"]
         response = {}
@@ -127,10 +127,12 @@ class RiskStats:
                             upside_ratio = raw[:first_dot+3]
                             downside_ratio = raw[first_dot+3:]
                             stats.append({"upside_ratio": upside_ratio, "downside_ratio": downside_ratio})
+
+                        del stats[0]       #Delete 1-Year for consistency, since other stats only have 3year, 5year, 10year, 15year
                         response = dict(zip(timespans, stats))
             else:
-                raise FundException.UIChangedError(f"Error while retrieving data for risk mpt: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for risk capture ratios: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
         else:
-            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk mpt: Symbol does not exist: {fund_symbol}")
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk capture ratios: Symbol does not exist: {fund_symbol}")
 
         return response
