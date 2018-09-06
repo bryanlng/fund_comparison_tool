@@ -21,8 +21,8 @@ class RiskStats:
         Return in a JsonResponse encoded object
         """
         response = {}
-        response["mpt_stats"] = self.get_mpt_stats(fund_symbol)
-        # response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
+        # response["mpt_stats"] = self.get_mpt_stats(fund_symbol)
+        response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
         # response["capture_ratios"] = self.get_capture_ratios(fund_symbol)
         return response
 
@@ -32,7 +32,6 @@ class RiskStats:
         Retrieves alpha, beta, R-squared, Treynor ratio
         """
         # Build a dictionary, where key = time period, value = trailing return for that time period.
-        # timespans = ["3-Year"]
         timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
         fields = ["Category Index", "R-Squared", "Beta", "Alpha", "Treynor Ratio", "Currency"]
         response = {}
@@ -53,12 +52,9 @@ class RiskStats:
                     for row in rows:
                         row_header = row.find("th")
                         if dataNotFoundYet and row_header != None and row_header.text == fund_symbol:
-                            stats = [col.text.strip() for col in row.findAll("td")]
                             dataNotFoundYet = False
-                            print(stats)
-
+                            stats = [col.text.strip() for col in row.findAll("td")]
                             response[timespan] = dict(zip(fields, stats))
-                            print(response[timespan])
                 else:
                     raise FundException.UIChangedError(f"Error while retrieving data for risk mpt: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
             else:
@@ -70,7 +66,35 @@ class RiskStats:
         """
         Retrieves standard deviation, return, sharpe ratio, sortino ratio
         """
-        return {}
+        # Build a dictionary, where key = time period, value = trailing return for that time period.
+        timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
+        fields = ["Standard Deviation", "Return", "Sharpe Ratio", "Sortino Ratio"]
+        response = {}
+
+        for timespan in timespans:
+            year = timespan.split("-")[0]
+            url = Util.build_url(Section.RISK_VOLATILITY, fund_symbol, year)
+            raw = requests.get(url)
+            if raw.status_code == 200 and raw.text != "":
+                print("200 and not empty")
+                soup = BeautifulSoup(raw.text, 'html.parser')
+
+                # Find corresponding column values of trailing risk stats. These will be the values of the dict
+                table = soup.find("table")
+                if table is not None:
+                    rows = table.findAll(lambda tag: tag.name == 'tr')
+                    for row in rows:
+                        row_header = row.find("th")
+                        if row_header != None and row_header.text == fund_symbol:
+                            stats = [col.text.strip() for col in row.findAll("td")]
+                            del stats[len(stats)-1]                             #Remove unnecessary values
+                            response[timespan] = dict(zip(fields, stats))
+                else:
+                    raise FundException.UIChangedError(f"Error while retrieving data for risk mpt: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+            else:
+                raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk mpt: Symbol does not exist: {fund_symbol}")
+
+        return response
 
     def get_capture_ratios(self, fund_symbol):
         """

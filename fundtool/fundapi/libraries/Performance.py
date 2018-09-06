@@ -146,21 +146,11 @@ class PerformanceStats:
         for col in column_data:
             data = [str(span.text_content()) for span in list(col)]
             if current_year not in data and len(data) == 4:    #Grab column data for all years except current year
+
                 #Data will be in the format of a list of 4 elements, in the order [year, ui bar, fund return, category return]. We hardcode order, as Elements are returned in document order, according to documentation
                 year = int(data[0])
-                fund_return_raw = data[2]
-                category_return_raw = data[3]
-                fund_return = "None available for current year"              #If return is "N/A", then it will have this value
-                category_return = "None available for current year"
-
-                if fund_return_raw != "N/A":
-                    fund_return = float(data[2][:-1])           #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
-
-                if category_return_raw != "N/A":
-                    category_return = float(data[3][:-1])       #Concatenate "%" off of string, then convert to float. Ex: "25.67%", we want: 25.67
-
-                fund[year] = fund_return
-                category[year] = category_return
+                fund[year] = data[2][:-1]
+                category[year] = data[3][:-1]
 
         response[fund_symbol] = fund
         response["Category"] = category
