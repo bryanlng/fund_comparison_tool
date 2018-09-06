@@ -9,7 +9,7 @@ import fundapi.libraries.exceptions as FundException
 class RiskStats:
     def get_risk_stats(self, fund_symbol):
         """
-        Grabs risk stats. Grabs 8 things, for 4 time period of (3 year, 5 year, 10 year, 15 year):
+        Grabs risk stats. Grabs 8 things, for 4 time periods (3 year, 5 year, 10 year, 15 year):
             1. Alpha
             2. Beta
             3. R-squared
@@ -17,11 +17,11 @@ class RiskStats:
             5. Sharpe ratio
             6. Sortino ratio
             7. Treynor ratio
-            8. Capture ratios (5 time periods: 1 year, 3 year, 5 year, 10 year, 15 year)
+            8. Capture ratios
         Return in a JsonResponse encoded object
         """
 
-        #Add data from capture ratios first. We can get all data in capture ratios in 1 get request, but need multiple for mpt and volatility
+        #Add data from capture ratios first. We can get all data in capture ratios in 1 GET request, but need multiple GET requests for mpt and volatility
         fund_symbol = fund_symbol.upper()
         response = {}
         try:
@@ -30,7 +30,7 @@ class RiskStats:
             timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
             for timespan in timespans:
                 #Extract and aggregate data for MPT stats and Volatility stats
-                mpt_and_volatility = self.collect_column_data(fund_symbol, timespan)
+                mpt_and_volatility = self.get_mpt_and_volatility_data(fund_symbol, timespan)
 
                 #Add these values into the current timespan dict along with the capture ratios
                 response[timespan] = {**response[timespan], **mpt_and_volatility}
@@ -47,10 +47,12 @@ class RiskStats:
         return response
 
 
-    def collect_column_data(self,fund_symbol, timespan):
+    def get_mpt_and_volatility_data(self,fund_symbol, timespan):
         """
         For a given timespan, gets ALL the MPT + Volatility data
+        Builds a dictionary, where key = time period, value = dict containing all the stats for that year
         """
+
         timespan_dict = {}
         year = timespan.split("-")[0]
         sections = [Section.RISK_MPT, Section.RISK_VOLATILITY]
@@ -84,6 +86,11 @@ class RiskStats:
         return timespan_dict
 
     def extract_column_data(self, row, section):
+        """
+        Extracts values from column and puts them into a dictionary
+        Returns: dictionary where key = field name, value = corresponding value for field
+        """
+
         response = {}
         if section == Section.RISK_MPT:
             fields = ["Category Index", "R-Squared", "Beta", "Alpha", "Treynor Ratio", "Currency"]
@@ -99,10 +106,10 @@ class RiskStats:
     def get_capture_ratios(self, fund_symbol):
         """
         Gets upside and downside capture ratios for 1 year, 3 year, 5 year, 10 year, 15 year
+        Builds a dictionary, where key = time period, value = dict containing upside ratio, downside ratio for that year
         """
-        # Build a dictionary, where key = time period, value = trailing return for that time period.
+
         timespans = ["3-Year", "5-Year", "10-Year", "15-Year"]
-        fields = ["Standard Deviation", "Return", "Sharpe Ratio", "Sortino Ratio"]
         response = {}
 
         url = Util.build_url(Section.CAPTURE_RATIOS, fund_symbol)
