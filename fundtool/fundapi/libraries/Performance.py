@@ -85,7 +85,7 @@ class PerformanceStats:
                 rows = table.findAll(lambda tag: tag.name == 'tr')
                 for row in rows:
                     row_header = row.find("th")
-                    if row_header.text == fund_symbol:
+                    if row_header != None and row_header.text == fund_symbol:
                         quarterly_returns = [col.text for col in row.findAll("td")]
                         response = dict(zip(timespans, quarterly_returns))
             else:
