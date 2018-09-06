@@ -13,16 +13,37 @@ class GeneralStats:
             1. Price (NAV)
             2. Min. initial investment
             3. Expense ratio
-            4. Symbol
-            5. Asset allocation pie chart data(Morningstar's pie chart: Cash, US stock, Non-US stock, bonds, etc)
-            6. Morningstar overall rating
-            7. Morningstar risk vs category
-            8. Morningstar return vs category
-            9. Morningstar category
-            10.Turnover ratio
+            4. Asset allocation pie chart data(Morningstar's pie chart: Cash, US stock, Non-US stock, bonds, etc)Asset allocation pie chart data(Morningstar's pie chart: Cash, US stock, Non-US stock, bonds, etc)
+            5. Morningstar overall rating
+            6. Morningstar risk vs category
+            7. Morningstar return vs category
+            8. Morningstar category
+            9. Turnover ratio
         Source = Morningstar, quotes page
+
+
+        Groups in terms of GET requests:
+        1. header request:
+            response["price"] = self.get_price(fund_symbol)
+            response["min_investment"] = self.get_min_investment(fund_symbol)
+            response["expense_ratio"] = self.get_expense_ratio(fund_symbol)
+            response["turnover_ratio"] = self.get_turnover_ratio(fund_symbol)
+            response["morningstar_category"] = self.get_morningstar_category(fund_symbol)
+
+        2. asset allocation
+            response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
+
+        3. risk measures
+            response["morningstar_risk_vs_category"] = self.get_morningstar_risk_vs_category(fund_symbol)
+            response["morningstar_return_vs_category"] = self.get_morningstar_return_vs_category(fund_symbol)
+
+        4. security identifier get request
+            response["morningstar_overall_rating"] = self.get_morningstar_overall_rating(fund_symbol)
         """
+
         response = {}
+
+
         response["price"] = self.get_price(fund_symbol)
         response["min_investment"] = self.get_min_investment(fund_symbol)
         response["expense_ratio"] = self.get_expense_ratio(fund_symbol)
@@ -33,6 +54,7 @@ class GeneralStats:
         response["morningstar_category"] = self.get_morningstar_category(fund_symbol)
         response["turnover_ratio"] = self.get_turnover_ratio(fund_symbol)
         return {}
+
 
     def get_price(self, fund_symbol):
         """

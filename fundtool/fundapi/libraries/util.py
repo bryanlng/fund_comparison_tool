@@ -9,6 +9,10 @@ class Section(Enum):
     RISK_MPT = "risk_modern_portfolio_theory_stats"
     RISK_VOLATILITY = "risk_volatility"
     CAPTURE_RATIOS = "capture_ratios"
+    GENERAL_STATS = "general_stats"
+    ASSET_ALLOCATION = "asset_allocation_basic"
+    RISK_RETURN_VS_CATEGORY = "risk_return_vs_category"
+    OVERALL_RATING = "overall_rating"
 
 def build_url(section, fund_symbol, year=0):
     if section == Section.TRAILING:
@@ -23,7 +27,19 @@ def build_url(section, fund_symbol, year=0):
         return "http://performance.morningstar.com/ratrisk/RatingRisk/fund/volatility-measurements.action?&t=" + fund_symbol + "&region=usa&culture=en-US&cur=&ops=clear&s=0P00001L8R&y=" + year + "&ep=true&comparisonRemove=true&benchmarkSecId=&benchmarktype="
     elif section == Section.CAPTURE_RATIOS:
         return "http://performance.morningstar.com/ratrisk/RatingRisk/fund/updownside-capture.action?&t=" + fund_symbol + "&region=usa&culture=en-US&cur=&ops=clear&s=0P00001L8R&ep=true&comparisonRemove=null&benchmarkSecId=&benchmarktype="
-    else:
+    elif section == Section.GENERAL_STATS:
+        return "https://quotes.morningstar.com/fundq/c-header?&t=" + fund_symbol + "&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame"
+    elif section == Section.ASSET_ALLOCATION:
+        return "https://quotes.morningstar.com/fundq/c-assetAllocation?&t=" + fund_symbol + "&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame"
+    elif section == Section.RISK_RETURN_VS_CATEGORY:
+        return "https://quotes.morningstar.com/fundq/c-risk-measures?&t=" + fund_symbol + "&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame"
+    elif section == Section.OVERALL_RATING:
+        """
+        return https://www.morningstar.com/api/v1/security-identifier/0P00002WFU
+        having trouble getting this
+        "0P00002WFU" is different for every fund
+        May need to either scrape or do something in order to even get this
+        """
         return "wut"
 
 def validate_format(fund_symbol):
