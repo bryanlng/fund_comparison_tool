@@ -27,15 +27,10 @@ class GeneralStats:
         sections = [Section.GENERAL_STATS, Section.ASSET_ALLOCATION, Section.RISK_RETURN_VS_CATEGORY, Section.OVERALL_RATING]
         # for section in sections:
 
-        # response["price"] = self.get_price(fund_symbol)
-        # response["min_investment"] = self.get_min_investment(fund_symbol)
-        # response["expense_ratio"] = self.get_expense_ratio(fund_symbol)
+        response["price"] = self.get_general_details(fund_symbol)
+        # response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
+        # response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
         # response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
-        # response["morningstar_overall_rating"] = self.get_morningstar_overall_rating(fund_symbol)
-        # response["morningstar_risk_vs_category"] = self.get_morningstar_risk_vs_category(fund_symbol)
-        # response["morningstar_return_vs_category"] = self.get_morningstar_return_vs_category(fund_symbol)
-        # response["morningstar_category"] = self.get_morningstar_category(fund_symbol)
-        # response["turnover_ratio"] = self.get_turnover_ratio(fund_symbol)
         return {}
 
 
@@ -48,7 +43,52 @@ class GeneralStats:
             4. Turnover ratio (in percentage, ex: .77%)
             5. Morningstar Category
         """
-        return {}
+        # Build a dictionary, where key = time period, value = trailing return for that time period.
+        timespans = ["1-Month", "3-Month", "6-Month", "YTD",
+                     "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
+        response = {}
+        url = Util.build_url(Section.GENERAL_STATS, fund_symbol)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
+            soup = BeautifulSoup(raw.text, 'html.parser')
+
+            # Find Values
+            """
+            NAV:
+                <span vkey="NAV">
+                 82.70
+                </span>
+
+            Minimum investment:
+            <span ckey="isCur" vkey="MinInvestment">
+                2,500
+            </span>
+
+            Expense ratio:
+                <span vkey="ExpenseRatio" class="gr_text1">
+                     0.77%
+                </span>
+
+            Turnover ratio:
+            <span vkey="Turnover" class="gr_text1">
+                 38%
+            </span>
+
+            Morningstar category:
+            <span vkey="MorningstarCategory" class="gr_text1">
+                 Health
+            </span>
+            """
+            divs = soup.find_all("span", attrs={"vkey": "NAV"})
+            print(divs)
+
+        #     else:
+        #         raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        # else:
+        #     raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+
+        return response
 
     def get_asset_allocation_data(self, fund_symbol):
         """
