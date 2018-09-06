@@ -22,8 +22,8 @@ class RiskStats:
         """
         response = {}
         # response["mpt_stats"] = self.get_mpt_stats(fund_symbol)
-        response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
-        # response["capture_ratios"] = self.get_capture_ratios(fund_symbol)
+        # response["volatility_stats"] = self.get_volatility_stats(fund_symbol)
+        response["capture_ratios"] = self.get_capture_ratios(fund_symbol)
         return response
 
 
@@ -100,4 +100,37 @@ class RiskStats:
         """
         Gets upside and downside capture ratios for 1 year, 3 year, 5 year, 10 year, 15 year
         """
-        return {}
+        # Build a dictionary, where key = time period, value = trailing return for that time period.
+        timespans = ["1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
+        upsidedownside_fields = ["Upside ratio", "Downside ratio"]
+        fields = ["Standard Deviation", "Return", "Sharpe Ratio", "Sortino Ratio"]
+        response = {}
+
+        url = Util.build_url(Section.CAPTURE_RATIOS, fund_symbol)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
+            soup = BeautifulSoup(raw.text, 'html.parser')
+
+            # Find corresponding column values of trailing risk stats. These will be the values of the dict
+            table = soup.find("table")
+            if table is not None:
+                rows = table.findAll(lambda tag: tag.name == 'tr')
+                for row in rows:
+                    row_header = row.find("th")
+                    if row_header != None and row_header.text == fund_symbol:
+                        stats = []
+                        for col in row.findAll("td"):
+                            #Values are stuck together. Ex: Convert "145.9576.71" --> "145.95", "76.71"
+                            raw = col.text
+                            first_dot = raw.find(".")
+                            upside_ratio = raw[:first_dot+3]
+                            downside_ratio = raw[first_dot+3:]
+                            stats.append({"upside_ratio": upside_ratio, "downside_ratio": downside_ratio})
+                        response = dict(zip(timespans, stats))
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for risk mpt: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for risk mpt: Symbol does not exist: {fund_symbol}")
+
+        return response
