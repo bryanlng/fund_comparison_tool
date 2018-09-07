@@ -28,8 +28,8 @@ class GeneralStats:
         # for section in sections:
 
         # response["price"] = self.get_general_details(fund_symbol)
-        response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
-        # response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
+        # response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
+        response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
         # response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
         return response
 
@@ -88,14 +88,12 @@ class GeneralStats:
             print("200 and not empty")
             soup = BeautifulSoup(raw.text, 'html.parser')
 
-            # Find corresponding column values of trailing returns. These will be the values of the dict
             fields = ["Cash", "US Stock", "US Stocks", "Non US Stock", "Non US Stocks", "Bond", "Bonds", "Other"]
             table = soup.find("table")
             if table is not None:
                 rows = table.findAll(lambda tag: tag.name == 'tr')
                 for row in rows:
                     rowData = [col.text for col in row.findAll("td") if col.text != ""]
-                    print(rowData)
                     if len(rowData) > 0:
                         fieldEntry = rowData[0]
                         if fieldEntry in fields:
@@ -115,7 +113,31 @@ class GeneralStats:
             2. overall return compared to its category, as judged by Morningstar
         Found on quotes page
         """
-        return {}
+        response = {}
+        url = Util.build_url(Section.RISK_RETURN_VS_CATEGORY, fund_symbol)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
+            soup = BeautifulSoup(raw.text, 'html.parser')
+
+            fields = ["Risk vs.Category", "Return vs.Category"]
+            table = soup.find("table")
+            if table is not None:
+                rows = table.findAll(lambda tag: tag.name == 'tr')
+                for row in rows:
+                    rowData = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
+                    if len(rowData) > 0:
+                        fieldEntry = rowData[0]
+                        for field in fields:
+                            if fieldEntry.find(field) != -1:
+                                response[field] = rowData[1]
+
+                # else:
+                #     raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+
+        return response
 
     def get_morningstar_overall_rating(self, fund_symbol):
         """
