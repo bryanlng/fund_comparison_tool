@@ -50,9 +50,7 @@ def build_url(section, fund_symbol, year=0, performanceId=""):
     elif section == Section.RISK_RETURN_VS_CATEGORY:
         return "https://quotes.morningstar.com/fundq/c-risk-measures?&t=" + fund_symbol + "&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame"
     elif section == Section.OVERALL_RATING:
-        print("util performanceId: ", performanceId)
         return "https://www.morningstar.com/api/v1/security-identifier/" + performanceId
-        # return "https://www.morningstar.com/api/v1/security-identifier/0P00002PPP"
     elif section == Section.QUOTES_PAGE:
         return "https://www.morningstar.com/funds/XNAS/" + fund_symbol + "/quote.html"
 
