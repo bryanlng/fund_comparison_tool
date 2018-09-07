@@ -14,6 +14,21 @@ class Section(Enum):
     RISK_RETURN_VS_CATEGORY = "risk_return_vs_category"
     OVERALL_RATING = "overall_rating"
 
+# def removeSpecialChars(numberInStrForm):
+#     """
+#     Removes commas, percentages, etc from numbers
+#     Exception = period
+#     Ex:
+#         2,500 --> 2500
+#         38% --> 38
+#     """
+#
+#     if re.match('^[0-9]$', numberInStrForm) is not None:
+#
+#     for char in numberInStrForm:
+
+
+
 def build_url(section, fund_symbol, year=0):
     if section == Section.TRAILING:
         return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="

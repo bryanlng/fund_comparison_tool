@@ -31,7 +31,7 @@ class GeneralStats:
         # response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
         # response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
         # response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
-        return {}
+        return response
 
 
     def get_general_details(self, fund_symbol):
@@ -53,40 +53,18 @@ class GeneralStats:
             print("200 and not empty")
             soup = BeautifulSoup(raw.text, 'html.parser')
 
-            # Find Values
-            """
-            NAV:
-                <span vkey="NAV">
-                 82.70
-                </span>
 
-            Minimum investment:
-            <span ckey="isCur" vkey="MinInvestment">
-                2,500
-            </span>
-
-            Expense ratio:
-                <span vkey="ExpenseRatio" class="gr_text1">
-                     0.77%
-                </span>
-
-            Turnover ratio:
-            <span vkey="Turnover" class="gr_text1">
-                 38%
-            </span>
-
-            Morningstar category:
-            <span vkey="MorningstarCategory" class="gr_text1">
-                 Health
-            </span>
-            """
-            divs = soup.find_all("span", attrs={"vkey": "NAV"})
-            print(divs)
-
-        #     else:
-        #         raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
-        # else:
-        #     raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+            keys = ["NAV", "MinInvestment", "ExpenseRatio", "Turnover", "MorningstarCategory"]
+            for key in keys:
+                spans = soup.findAll("span", attrs={"vkey": key})
+                if len(spans) > 0:
+                    span = spans[0]
+                    span_text = span.text
+                    response[key] = span_text.strip()
+                else:
+                    raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
 
         return response
 
