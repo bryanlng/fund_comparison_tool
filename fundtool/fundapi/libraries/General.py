@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from lxml import etree, html
 
 import fundapi.libraries.util as Util
 from fundapi.libraries.util import Section
@@ -143,13 +144,15 @@ class GeneralStats:
         Gets the overall Morningstar rating
         Process:
             1. Use lxml to find the corresponding performanceId for the fund, located in head > meta name = performanceId
-            2. Then, hit the security identifier API of morningstar with that id, which will return in a field the number of stars
+            2. Then, hit the security identifier API of morningstar with that id, which will return in a field the number of stars'
+
+        Ex:
+            FSDAX's performanceId is 0P00002PPP
         """
-        # performanceId = self.extract_perforamnce_id(fund_symbol)
-        performanceId = "0P00002PPP"
+        performanceId = self.extract_performance_id(fund_symbol)
 
         response = {}
-        url = Util.build_url(Section.OVERALL_RATING, fund_symbol, performanceId)
+        url = Util.build_url(Section.OVERALL_RATING, fund_symbol, 0, performanceId)
         raw = requests.get(url)
         if raw.status_code == 200 and raw.text != "":
             print("200 and not empty")
@@ -163,5 +166,14 @@ class GeneralStats:
 
         return response
 
-    def extract_perforamnce_id(self, fund_symbol):
-        dfdf
+    def extract_performance_id(self, fund_symbol):
+        url = Util.build_url(Section.QUOTES_PAGE, fund_symbol)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            #Build lxml tree from webpage
+            tree = html.fromstring(raw.content)
+
+            #Find the meta tag that says "performanceId", and extract the content field
+            tags = tree.xpath('.//meta[@name="performanceId"]')
+            tag = tags[0]
+            return tag.get("content")
