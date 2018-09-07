@@ -27,8 +27,8 @@ class GeneralStats:
         sections = [Section.GENERAL_STATS, Section.ASSET_ALLOCATION, Section.RISK_RETURN_VS_CATEGORY, Section.OVERALL_RATING]
         # for section in sections:
 
-        response["price"] = self.get_general_details(fund_symbol)
-        # response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
+        # response["price"] = self.get_general_details(fund_symbol)
+        response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
         # response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
         # response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
         return response
@@ -44,8 +44,6 @@ class GeneralStats:
             5. Morningstar Category
         """
         # Build a dictionary, where key = time period, value = trailing return for that time period.
-        timespans = ["1-Month", "3-Month", "6-Month", "YTD",
-                     "1-Year", "3-Year", "5-Year", "10-Year", "15-Year"]
         response = {}
         url = Util.build_url(Section.GENERAL_STATS, fund_symbol)
         raw = requests.get(url)
@@ -61,8 +59,8 @@ class GeneralStats:
                     span = spans[0]
                     span_text = span.text
                     response[key] = span_text.strip()
-                else:
-                    raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                # else:
+                #     raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
         else:
             raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
 
@@ -72,8 +70,43 @@ class GeneralStats:
         """
         Gets the asset allocation data necessary for the pie chart
         Mimics Morningstar's asset allocation pie chart on the quotes page
+        Note: On morningstar, there are 2 possible layouts:
+            1. Pie chart:
+                -7 rows in response (1 blank, 6 with 2 columns each: field name and value)
+                -ex: PRHSX
+            2. Table:
+                -8 rows in response (2 irrelvant, 6 with 4 columns each: field name, net, short, long)
+                -We'll only use field name and net, to match consistency with pie chart scenario
+                -Contains the phrase "Note: Contains derivatives or short positions"
+                -ex: FSDAX
         """
-        return {}
+        # Build a dictionary, where key = time period, value = trailing return for that time period.
+        response = {}
+        url = Util.build_url(Section.ASSET_ALLOCATION, fund_symbol)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
+            soup = BeautifulSoup(raw.text, 'html.parser')
+
+            # Find corresponding column values of trailing returns. These will be the values of the dict
+            fields = ["Cash", "US Stock", "US Stocks", "Non US Stock", "Non US Stocks", "Bond", "Bonds", "Other"]
+            table = soup.find("table")
+            if table is not None:
+                rows = table.findAll(lambda tag: tag.name == 'tr')
+                for row in rows:
+                    rowData = [col.text for col in row.findAll("td") if col.text != ""]
+                    print(rowData)
+                    if len(rowData) > 0:
+                        fieldEntry = rowData[0]
+                        if fieldEntry in fields:
+                            response[fieldEntry] = rowData[1]
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+
+        return response
+
 
     def get_risk_return_vs_category(self, fund_symbol):
         """
