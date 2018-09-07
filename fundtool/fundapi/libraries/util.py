@@ -29,7 +29,7 @@ class Section(Enum):
 
 
 
-def build_url(section, fund_symbol, year=0):
+def build_url(section, fund_symbol, year=0, performanceId=""):
     if section == Section.TRAILING:
         return "http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=" + fund_symbol + "&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype="
     elif section == Section.GROWTH:
@@ -49,13 +49,9 @@ def build_url(section, fund_symbol, year=0):
     elif section == Section.RISK_RETURN_VS_CATEGORY:
         return "https://quotes.morningstar.com/fundq/c-risk-measures?&t=" + fund_symbol + "&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame"
     elif section == Section.OVERALL_RATING:
-        """
-        return https://www.morningstar.com/api/v1/security-identifier/0P00002WFU
-        having trouble getting this
-        "0P00002WFU" is different for every fund
-        May need to either scrape or do something in order to even get this
-        """
-        return "wut"
+        # return "https://www.morningstar.com/api/v1/security-identifier/" + performanceId
+        return "https://www.morningstar.com/api/v1/security-identifier/0P00002PPP"
+
 
 def validate_format(fund_symbol):
     if len(fund_symbol) != 5 or re.match('^[A-Z]{5}$', fund_symbol) is None:

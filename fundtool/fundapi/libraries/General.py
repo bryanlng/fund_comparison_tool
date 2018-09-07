@@ -29,8 +29,8 @@ class GeneralStats:
 
         # response["price"] = self.get_general_details(fund_symbol)
         # response["min_investment"] = self.get_asset_allocation_data(fund_symbol)
-        response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
-        # response["asset_allocation"] = self.get_asset_allocation_data(fund_symbol)
+        # response["expense_ratio"] = self.get_risk_return_vs_category(fund_symbol)
+        response["asset_allocation"] = self.get_morningstar_overall_rating(fund_symbol)
         return response
 
 
@@ -131,9 +131,8 @@ class GeneralStats:
                         for field in fields:
                             if fieldEntry.find(field) != -1:
                                 response[field] = rowData[1]
-
-                # else:
-                #     raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
         else:
             raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
 
@@ -142,5 +141,27 @@ class GeneralStats:
     def get_morningstar_overall_rating(self, fund_symbol):
         """
         Gets the overall Morningstar rating
+        Process:
+            1. Use lxml to find the corresponding performanceId for the fund, located in head > meta name = performanceId
+            2. Then, hit the security identifier API of morningstar with that id, which will return in a field the number of stars
         """
-        return {}
+        # performanceId = self.extract_perforamnce_id(fund_symbol)
+        performanceId = "0P00002PPP"
+
+        response = {}
+        url = Util.build_url(Section.OVERALL_RATING, fund_symbol, performanceId)
+        raw = requests.get(url)
+        if raw.status_code == 200 and raw.text != "":
+            print("200 and not empty")
+            data = raw.json()
+            if "starRating" in data:
+                response["starRating"] = data["starRating"]
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+
+        return response
+
+    def extract_perforamnce_id(self, fund_symbol):
+        dfdf
