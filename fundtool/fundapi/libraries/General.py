@@ -23,11 +23,24 @@ class GeneralStats:
         Source = Morningstar, quotes page
         """
 
+        fund_symbol = fund_symbol.upper()
         response = {}
 
-        sections = [Section.GENERAL_STATS, Section.ASSET_ALLOCATION, Section.RISK_RETURN_VS_CATEGORY, Section.OVERALL_RATING]
-        for section in sections:
-            response = {**response, **self.get_section_data(section, fund_symbol)}
+        try:
+            Util.validate_format(fund_symbol)
+            sections = [Section.GENERAL_STATS, Section.ASSET_ALLOCATION, Section.RISK_RETURN_VS_CATEGORY, Section.OVERALL_RATING]
+            for section in sections:
+                response = {**response, **self.get_section_data(section, fund_symbol)}
+
+        except FundException.ImproperSymbolFormatError as e:
+            raise FundException.ImproperSymbolFormatError(e)
+        except FundException.SymbolDoesNotExistError as e:
+            raise FundException.SymbolDoesNotExistError(e)
+        except FundException.UIChangedError as e:
+            raise FundException.UIChangedError(e)
+        except FundException.SourceEndpointChangedError as e:
+            raise FundException.SourceEndpointChangedError(e)
+
         return response
 
 
