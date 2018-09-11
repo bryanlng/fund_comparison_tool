@@ -14,6 +14,8 @@ class Section(Enum):
     RISK_RETURN_VS_CATEGORY = "risk_return_vs_category"
     OVERALL_RATING = "overall_rating"
     QUOTES_PAGE ="quotes_page"
+    HOLDINGS_PAGE_TOP_25 = "holdings_page_asc"
+    HOLDINGS_PAGE_BOTTOM_25 = "holdings_page_desc"
 
 # def removeSpecialChars(numberInStrForm):
 #     """
@@ -53,6 +55,10 @@ def build_url(section, fund_symbol, year=0, performanceId=""):
         return "https://www.morningstar.com/api/v1/security-identifier/" + performanceId
     elif section == Section.QUOTES_PAGE:
         return "https://www.morningstar.com/funds/XNAS/" + fund_symbol + "/quote.html"
+    elif section == Section.HOLDINGS_PAGE_TOP_25:
+        return "http://portfolios.morningstar.com/portfo/fund/ajax/holdings_tab?t=" + fund_symbol + "&region=usa&culture=en-US&cur=&dataType=0&sortby=weighting&order=asc"
+    elif section == Section.HOLDINGS_PAGE_BOTTOM_25:
+        return "http://portfolios.morningstar.com/portfo/fund/ajax/holdings_tab?t=" + fund_symbol + "&region=usa&culture=en-US&cur=&dataType=0&sortby=weighting&order=des"
 
 
 def validate_format(fund_symbol):
