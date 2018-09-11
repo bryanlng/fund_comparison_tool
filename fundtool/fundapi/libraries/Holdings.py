@@ -22,11 +22,15 @@ class HoldingsStats:
                 -% portfolio weight
                 -Shares owned
                 -Shares changed
-                -YTD return
-                -P/E
+                -YTD return (could be positive, negative, float, or blank (-) )
+                -P/E (could be positive, negative, float, or blank (-) )
             2. Equity prices tab
                 -Price
                 -G/L % (gain/loss percent)
+
+        Each tab is represented as a table
+            -equity view tab:       id = equity_holding_tab
+            -equity prices tab:     id = equityPrice_holding_tab
 
         Comparisons between 2+ mutual funds will compare Name and % portfolio weight only
         """
@@ -43,6 +47,12 @@ class HoldingsStats:
         data = data.replace("\n", "")
         data = data.replace("\t", "")
         print(data)
+
+
+        soup = BeautifulSoup(data, 'html.parser')
+        table = soup.find("table")
+
+
 
         response["data"] = data
 
