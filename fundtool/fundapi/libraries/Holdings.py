@@ -15,7 +15,7 @@ class HoldingsStats:
             2. % portfolio weight
             3. YTD return
 
-        First get the first 25 most weighted companies from portfolio (desc), then bottom 25 (asc)
+        First get the first 25 most weighted companies from portfolio (desc)
         For each:
             1. Equity view tab
                 -Name
@@ -41,7 +41,7 @@ class HoldingsStats:
 
         try:
             Util.validate_format(fund_symbol)
-            url = Util.build_url(Section.HOLDINGS_PAGE_BOTTOM_25, fund_symbol)
+            url = Util.build_url(Section.HOLDINGS_PAGE_TOP_25, fund_symbol)
             response = self.extractHoldings(url, fund_symbol)
 
         except FundException.ImproperSymbolFormatError as e:
