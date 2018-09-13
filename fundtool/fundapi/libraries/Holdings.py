@@ -35,15 +35,43 @@ class HoldingsStats:
 
         Comparisons between 2+ mutual funds will compare Name and % portfolio weight only
         """
-        section = Section.HOLDINGS_PAGE_BOTTOM_25
-        url = Util.build_url(section, fund_symbol)
 
+        fund_symbol = fund_symbol.upper()
+        response = {}
+
+        try:
+            Util.validate_format(fund_symbol)
+            url = Util.build_url(Section.HOLDINGS_PAGE_BOTTOM_25, fund_symbol)
+            response = self.extractHoldings(url, fund_symbol)
+
+        except FundException.ImproperSymbolFormatError as e:
+            raise FundException.ImproperSymbolFormatError(e)
+        except FundException.SymbolDoesNotExistError as e:
+            raise FundException.SymbolDoesNotExistError(e)
+        except FundException.UIChangedError as e:
+            raise FundException.UIChangedError(e)
+        except FundException.SourceEndpointChangedError as e:
+            raise FundException.SourceEndpointChangedError(e)
+
+        return response
+
+    def extractHoldings(self, url, fund_symbol):
+        response = {}
+        raw_data = self.pullData(url, fund_symbol)
+        if raw_data != None:
+            return self.parseData(raw_data, fund_symbol)
+
+    def pullData(self, url, fund_symbol):
         raw = requests.get(url)
-        raw_data = raw.json()
-        data = raw_data["htmlStr"]
+        if raw.status_code == 200 and raw.text != "":
+            raw_data = raw.json()
+            data = raw_data["htmlStr"]
+            return self.filterSpecialChars(data)
+        else:
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for holdings data: Symbol does not exist: {fund_symbol}")
 
-        data = self.filterSpecialChars(data)
-
+    def parseData(self, data):
+        response = {}
         soup = BeautifulSoup(data, 'html.parser')
         tabs = ["equity_holding_tab", "equityPrice_holding_tab"]
         for tab in tabs:
@@ -68,6 +96,7 @@ class HoldingsStats:
                                 current_dict = response[stock_name]
                                 current_dict = {**current_dict, **statsDict}
                                 response[stock_name] = current_dict
+
         return response
 
     def filterSpecialChars(self, data):
