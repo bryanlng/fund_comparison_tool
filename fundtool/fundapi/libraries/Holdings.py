@@ -70,7 +70,7 @@ class HoldingsStats:
         else:
             raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for holdings data: Symbol does not exist: {fund_symbol}")
 
-    def parseData(self, data):
+    def parseData(self, data, fund_symbol):
         response = {}
         soup = BeautifulSoup(data, 'html.parser')
         tabs = ["equity_holding_tab", "equityPrice_holding_tab"]
@@ -96,7 +96,8 @@ class HoldingsStats:
                                 current_dict = response[stock_name]
                                 current_dict = {**current_dict, **statsDict}
                                 response[stock_name] = current_dict
-
+            else:
+                raise FundException.UIChangedError(f"Error while retrieving data for holdings data: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
         return response
 
     def filterSpecialChars(self, data):

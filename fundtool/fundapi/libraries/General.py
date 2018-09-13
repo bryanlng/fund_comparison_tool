@@ -61,7 +61,7 @@ class GeneralStats:
             return self.extract_column_data(section, soup, raw)
 
         else:
-            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for trailing returns: Symbol does not exist: {fund_symbol}")
+            raise FundException.SymbolDoesNotExistError(f"Error while retrieving data for General stats, section {section}: Symbol does not exist: {fund_symbol}")
 
     def extract_column_data(self, section, soup, raw):
         response = {}
@@ -71,7 +71,7 @@ class GeneralStats:
             if "starRating" in data:
                 response["starRating"] = data["starRating"]
             else:
-                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for General stats, section {section}: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
 
         elif section == Section.GENERAL_STATS:
             keys = ["NAV", "MinInvestment", "ExpenseRatio", "Turnover", "MorningstarCategory"]
@@ -94,7 +94,7 @@ class GeneralStats:
                         if fieldEntry in fields:
                             response[fieldEntry] = rowData[1]
             else:
-                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for General stats, section {section}: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
 
         else:
             fields = ["Risk vs.Category", "Return vs.Category"]
@@ -109,7 +109,7 @@ class GeneralStats:
                             if fieldEntry.find(field) != -1:
                                 response[field] = rowData[1]
             else:
-                raise FundException.UIChangedError(f"Error while retrieving data for trailing returns: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
+                raise FundException.UIChangedError(f"Error while retrieving data for General stats, section {section}: UI for source website of this symbol has changed, so we can't scrape the data: {fund_symbol}")
 
         return response
 
