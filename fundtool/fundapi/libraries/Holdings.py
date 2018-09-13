@@ -35,7 +35,6 @@ class HoldingsStats:
 
         Comparisons between 2+ mutual funds will compare Name and % portfolio weight only
         """
-        response = {"holdings": "test"}
         section = Section.HOLDINGS_PAGE_BOTTOM_25
         url = Util.build_url(section, fund_symbol)
 
@@ -43,55 +42,47 @@ class HoldingsStats:
         raw_data = raw.json()
         data = raw_data["htmlStr"]
 
+        data = self.filterSpecialChars(data)
+
+        soup = BeautifulSoup(data, 'html.parser')
+        tabs = ["equity_holding_tab", "equityPrice_holding_tab"]
+        for tab in tabs:
+            table = soup.find("table", id=tab)
+            if table is not None:
+                tbody = table.find('tbody')
+                rows = table.findAll(lambda tag: tag.name == 'tr')
+                for row in rows:
+                    #Extract stock name
+                    row_header = row.find("th")
+                    if row_header is not None:
+                        stock_name = row_header.text
+
+                        #Extract details for that stock
+                        stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
+                        if len(stats) > 1:
+                            statsDict = self.buildStatsDict(tab, stats)
+
+                            if stock_name not in response:
+                                response[stock_name] = statsDict
+                            else:
+                                current_dict = response[stock_name]
+                                current_dict = {**current_dict, **statsDict}
+                                response[stock_name] = current_dict
+        return response
+
+    def filterSpecialChars(self, data):
         data = data.strip()
         data = data.replace("\n", "")
         data = data.replace("\t", "")
+        return data
 
-        soup = BeautifulSoup(data, 'html.parser')
+    def buildStatsDict(self, tabId, stats):
+        fields = []
+        if tabId == "equity_holding_tab":
+            del stats[2:5]
+            fields = ["% portfolio weight", "Shares Owned", "Country", "YTD Return", "P/E ratio"]
+        else:
+            stats = stats[2:5]
+            fields = ["Currency", "Price", "Gain/Loss %"]
 
-        #equity view tab
-        # table = soup.find("table", id= "equity_holding_tab")
-        # if table is not None:
-        #     tbody = table.find('tbody')
-        #     rows = table.findAll(lambda tag: tag.name == 'tr')
-        #     for row in rows:
-        #         #Extract stock name
-        #         row_header = row.find("th")
-        #         if row_header is not None:
-        #             stock_name = row_header.text
-        #
-        #             #Extract details for that stock
-        #             stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
-        #             if len(stats) > 1:
-        #                 #Delete values in positions 2,3,4,5, as they don't pertain with what we want to retain
-        #                 del stats[2:5]
-        #
-        #                 fields = ["% portfolio weight", "Shares Owned", "Country", "YTD Return", "P/E ratio"]
-        #                 response[stock_name] = dict(zip(fields, stats))
-
-        #equity prices tab
-        table = soup.find("table", id= "equityPrice_holding_tab")
-        if table is not None:
-            tbody = table.find('tbody')
-            rows = table.findAll(lambda tag: tag.name == 'tr')
-            for row in rows:
-                #Extract stock name
-                row_header = row.find("th")
-                if row_header is not None:
-                    stock_name = row_header.text
-
-                    #Extract details for that stock
-                    stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
-                    if len(stats) > 1:
-                        print(stats)
-                        #Only retain values in positions 2,3,4 (Currency, price, Gain/loss %)
-                        stats = stats[2:5]
-
-                        print("stats after: ", stats)
-
-                        fields = ["Currency", "Price", "Gain/Loss %"]
-                        response[stock_name] = dict(zip(fields, stats))
-
-        response["data"] = data
-
-        return response
+        return dict(zip(fields, stats))
