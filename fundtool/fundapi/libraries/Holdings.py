@@ -30,6 +30,7 @@ class HoldingsStats:
 
         Each tab is represented as a table
             -equity view tab:       id = equity_holding_tab
+                -get <tbody> with id holding_epage0
             -equity prices tab:     id = equityPrice_holding_tab
 
         Comparisons between 2+ mutual funds will compare Name and % portfolio weight only
@@ -46,12 +47,24 @@ class HoldingsStats:
         data = data.strip()
         data = data.replace("\n", "")
         data = data.replace("\t", "")
-        print(data)
+        # print(data)
 
-
+        print("\n\n\n\n\n\n")
         soup = BeautifulSoup(data, 'html.parser')
-        table = soup.find("table")
+        table = soup.find("table", id= "equity_holding_tab")
+        if table is not None:
+            #Extract stock name
 
+            #Extract details for that stock
+            tbody = table.find('tbody')
+            rows = table.findAll(lambda tag: tag.name == 'tr')
+            for row in rows:
+                stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
+                if len(stats) > 1:
+                    #Delete values in positions 3,4,5, as they don't pertain with what we want to retain
+                    del stats[3:5]
+
+                    print(stats)
 
 
         response["data"] = data
