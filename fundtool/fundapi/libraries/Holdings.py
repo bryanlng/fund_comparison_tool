@@ -42,16 +42,35 @@ class HoldingsStats:
         raw = requests.get(url)
         raw_data = raw.json()
         data = raw_data["htmlStr"]
-        # print(data)
 
         data = data.strip()
         data = data.replace("\n", "")
         data = data.replace("\t", "")
-        # print(data)
 
-        print("\n\n\n\n\n\n")
         soup = BeautifulSoup(data, 'html.parser')
-        table = soup.find("table", id= "equity_holding_tab")
+
+        #equity view tab
+        # table = soup.find("table", id= "equity_holding_tab")
+        # if table is not None:
+        #     tbody = table.find('tbody')
+        #     rows = table.findAll(lambda tag: tag.name == 'tr')
+        #     for row in rows:
+        #         #Extract stock name
+        #         row_header = row.find("th")
+        #         if row_header is not None:
+        #             stock_name = row_header.text
+        #
+        #             #Extract details for that stock
+        #             stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
+        #             if len(stats) > 1:
+        #                 #Delete values in positions 2,3,4,5, as they don't pertain with what we want to retain
+        #                 del stats[2:5]
+        #
+        #                 fields = ["% portfolio weight", "Shares Owned", "Country", "YTD Return", "P/E ratio"]
+        #                 response[stock_name] = dict(zip(fields, stats))
+
+        #equity prices tab
+        table = soup.find("table", id= "equityPrice_holding_tab")
         if table is not None:
             tbody = table.find('tbody')
             rows = table.findAll(lambda tag: tag.name == 'tr')
@@ -64,13 +83,14 @@ class HoldingsStats:
                     #Extract details for that stock
                     stats = [col.text.strip() for col in row.findAll("td") if col.text.strip() != ""]
                     if len(stats) > 1:
-                        #Delete values in positions 2,3,4,5, as they don't pertain with what we want to retain
-                        del stats[2:5]
-
                         print(stats)
-                        fields = ["% portfolio weight", "Shares Owned", "Country", "YTD Return", "P/E ratio"]
-                        response[stock_name] = dict(zip(fields, stats))
+                        #Only retain values in positions 2,3,4 (Currency, price, Gain/loss %)
+                        stats = stats[2:5]
 
+                        print("stats after: ", stats)
+
+                        fields = ["Currency", "Price", "Gain/Loss %"]
+                        response[stock_name] = dict(zip(fields, stats))
 
         response["data"] = data
 
