@@ -5,9 +5,12 @@ https://trello.com/b/p1mWpgjU
 
 ## How to use:
 ```
+
+pip install -r requirements.txt
 cd fundtool
 python3 manage.py runserver
-Open up a browser and go to http://127.0.0.1:8000/v1/performance/<5 letter symbol of mutual fund, all caps>
+Open up a browser and go to http://127.0.0.1:8000/v1/performance/PRHSX
+   PRHSX is just an example; feel free to use any other valid fund symbol name
 ```
 Example:    [http://127.0.0.1:8000/v1/performance/PRHSX](http://127.0.0.1:8000/v1/performance/PRHSX)
 
