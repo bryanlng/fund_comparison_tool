@@ -295,3 +295,280 @@ mutual funds.
                 "starRating": 4
               }
             }
+            
+## Holdings Stats [/holdings/fund_symbol]
+
+### GET: /holdings/fund_symbol [GET]
+
+### Retrieves the top 25 securities that comprise the fund, and the following fields from each of them:
+1. Name
+2. Percentage of portolio this security comprises
+3. YTD return
+4. Shares owned
+5. Shares changed
+6. P/E
+7. Price
+8. G/L % (gain/loss percent for the day)
+
+### Sources I scraped this data from:
+1. [Morningstar Top 25 Holdings](http://portfolios.morningstar.com/portfo/fund/ajax/holdings_tab?t=PRHSX&region=usa&culture=en-US&cur=&dataType=0&sortby=weighting&order=des)
+
+**HTTP Request:**
+`link coming soon once I deploy`
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "UnitedHealth Group Inc": {
+                "% portfolio weight": "7.68",
+                "Shares Owned": "3,630,200",
+                "Country": "United States",
+                "YTD Return": "20.85",
+                "P/E ratio": "21.95",
+                "Currency": "USD",
+                "Price": "263.29",
+                "Gain/Loss %": "-0.22"
+              },
+              "Becton, Dickinson and Co": {
+                "% portfolio weight": "5.04",
+                "Shares Owned": "2,440,110",
+                "Country": "United States",
+                "YTD Return": "21.22",
+                "P/E ratio": "102.48",
+                "Currency": "USD",
+                "Price": "259.75",
+                "Gain/Loss %": "0.98"
+              },
+              "Intuitive Surgical Inc": {
+                "% portfolio weight": "4.97",
+                "Shares Owned": "1,205,326",
+                "Country": "United States",
+                "YTD Return": "53.08",
+                "P/E ratio": "82.64",
+                "Currency": "USD",
+                "Price": "564.82",
+                "Gain/Loss %": "1.10"
+              },
+              "Vertex Pharmaceuticals Inc": {
+                "% portfolio weight": "3.69",
+                "Shares Owned": "2,516,690",
+                "Country": "United States",
+                "YTD Return": "17.31",
+                "P/E ratio": "110.57",
+                "Currency": "USD",
+                "Price": "177.12",
+                "Gain/Loss %": "0.75"
+              },
+              "Anthem Inc": {
+                "% portfolio weight": "2.92",
+                "Shares Owned": "1,421,000",
+                "Country": "United States",
+                "YTD Return": "20.83",
+                "P/E ratio": "16.41",
+                "Currency": "USD",
+                "Price": "270.97",
+                "Gain/Loss %": "0.50"
+              },
+              "Stryker Corp": {
+                "% portfolio weight": "2.61",
+                "Shares Owned": "1,792,219",
+                "Country": "United States",
+                "YTD Return": "10.32",
+                "P/E ratio": "60.03",
+                "Currency": "USD",
+                "Price": "174.10",
+                "Gain/Loss %": "2.48"
+              },
+              "Alexion Pharmaceuticals Inc": {
+                "% portfolio weight": "2.60",
+                "Shares Owned": "2,425,595",
+                "Country": "United States",
+                "YTD Return": "-1.49",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "120.82",
+                "Gain/Loss %": "2.56"
+              },
+              "Sage Therapeutics Inc": {
+                "% portfolio weight": "2.51",
+                "Shares Owned": "1,856,661",
+                "Country": "United States",
+                "YTD Return": "-11.89",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "146.96",
+                "Gain/Loss %": "1.26"
+              },
+              "Thermo Fisher Scientific Inc": {
+                "% portfolio weight": "2.34",
+                "Shares Owned": "1,312,599",
+                "Country": "United States",
+                "YTD Return": "25.85",
+                "P/E ratio": "40.24",
+                "Currency": "USD",
+                "Price": "239.10",
+                "Gain/Loss %": "0.27"
+              },
+              "Cigna Corp": {
+                "% portfolio weight": "2.27",
+                "Shares Owned": "1,551,081",
+                "Country": "United States",
+                "YTD Return": "-2.57",
+                "P/E ratio": "19.15",
+                "Currency": "USD",
+                "Price": "200.07",
+                "Gain/Loss %": "1.13"
+              },
+              "Centene Corp": {
+                "% portfolio weight": "2.13",
+                "Shares Owned": "2,006,234",
+                "Country": "United States",
+                "YTD Return": "40.51",
+                "P/E ratio": "24.23",
+                "Currency": "USD",
+                "Price": "142.84",
+                "Gain/Loss %": "0.77"
+              },
+              "Agilent Technologies Inc": {
+                "% portfolio weight": "2.05",
+                "Shares Owned": "3,844,848",
+                "Country": "United States",
+                "YTD Return": "3.60",
+                "P/E ratio": "75.91",
+                "Currency": "USD",
+                "Price": "68.93",
+                "Gain/Loss %": "-0.22"
+              },
+              "Neurocrine Biosciences Inc": {
+                "% portfolio weight": "1.99",
+                "Shares Owned": "2,350,166",
+                "Country": "United States",
+                "YTD Return": "51.26",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "120.26",
+                "Gain/Loss %": "2.47"
+              },
+              "Sarepta Therapeutics Inc": {
+                "% portfolio weight": "1.84",
+                "Shares Owned": "1,611,512",
+                "Country": "United States",
+                "YTD Return": "173.81",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "153.58",
+                "Gain/Loss %": "0.81"
+              },
+              "Merck & Co Inc": {
+                "% portfolio weight": "1.73",
+                "Shares Owned": "3,302,683",
+                "Country": "United States",
+                "YTD Return": "27.71",
+                "P/E ratio": "140.84",
+                "Currency": "USD",
+                "Price": "70.42",
+                "Gain/Loss %": "0.00"
+              },
+              "Humana Inc": {
+                "% portfolio weight": "1.70",
+                "Shares Owned": "662,953",
+                "Country": "United States",
+                "YTD Return": "34.86",
+                "P/E ratio": "34.23",
+                "Currency": "USD",
+                "Price": "335.99",
+                "Gain/Loss %": "0.58"
+              },
+              "Danaher Corp": {
+                "% portfolio weight": "1.53",
+                "Shares Owned": "1,793,000",
+                "Country": "United States",
+                "YTD Return": "14.51",
+                "P/E ratio": "28.11",
+                "Currency": "USD",
+                "Price": "106.76",
+                "Gain/Loss %": "0.75"
+              },
+              "HCA Healthcare Inc": {
+                "% portfolio weight": "1.49",
+                "Shares Owned": "1,684,393",
+                "Country": "United States",
+                "YTD Return": "52.27",
+                "P/E ratio": "16.65",
+                "Currency": "USD",
+                "Price": "133.78",
+                "Gain/Loss %": "0.81"
+              },
+              "Biogen Inc": {
+                "% portfolio weight": "1.40",
+                "Shares Owned": "560,224",
+                "Country": "United States",
+                "YTD Return": "4.97",
+                "P/E ratio": "23.67",
+                "Currency": "USD",
+                "Price": "336.89",
+                "Gain/Loss %": "0.74"
+              },
+              "Incyte Corp": {
+                "% portfolio weight": "1.40",
+                "Shares Owned": "2,421,428",
+                "Country": "United States",
+                "YTD Return": "-29.24",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "67.82",
+                "Gain/Loss %": "1.19"
+              },
+              "Hologic Inc": {
+                "% portfolio weight": "1.36",
+                "Shares Owned": "3,957,700",
+                "Country": "United States",
+                "YTD Return": "-7.53",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "40.50",
+                "Gain/Loss %": "2.45"
+              },
+              "Regeneron Pharmaceuticals Inc": {
+                "% portfolio weight": "1.31",
+                "Shares Owned": "441,263",
+                "Country": "United States",
+                "YTD Return": "2.80",
+                "P/E ratio": "28.01",
+                "Currency": "USD",
+                "Price": "388.33",
+                "Gain/Loss %": "0.48"
+              },
+              "AstraZeneca PLC ADR": {
+                "% portfolio weight": "1.26",
+                "Shares Owned": "4,172,500",
+                "Country": "United Kingdom",
+                "YTD Return": "12.28",
+                "P/E ratio": "35.60",
+                "Currency": "USD",
+                "Price": "37.49",
+                "Gain/Loss %": "-0.19"
+              },
+              "bluebird bio Inc": {
+                "% portfolio weight": "1.26",
+                "Shares Owned": "932,281",
+                "Country": "United States",
+                "YTD Return": "-22.96",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "140.00",
+                "Gain/Loss %": "2.04"
+              },
+              "Biomarin Pharmaceutical Inc": {
+                "% portfolio weight": "1.19",
+                "Shares Owned": "1,466,067",
+                "Country": "United States",
+                "YTD Return": "10.07",
+                "P/E ratio": "—",
+                "Currency": "USD",
+                "Price": "99.56",
+                "Gain/Loss %": "1.44"
+              }
+            }
