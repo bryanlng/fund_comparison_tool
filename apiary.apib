@@ -1,80 +1,155 @@
 FORMAT: 1A
 HOST: http://polls.apiblueprint.org/
 
-# mutual_fund_comparison_tool_API
+# Fund Comparison Tool API
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+Fund Comparison Tool API is a simple API that allows users to query data on
+mutual funds.
 
-## Questions Collection [/questions]
+## Fund Performance [/performance/fundname]
 
-### List All Questions [GET]
+### GET: /performance/fundname [GET]
+
+### Retrieves the following fields of performance data for the given mutual fund:
+1. Trailing returns
+2. Historical returns
+3. Hypothetical growth of $10000, invested 5 years ago
+
+### Sources I scraped this data from:
+1. [Morningstar](http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=PRHSX&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype=)
+2. [Yahoo Finance](https://finance.yahoo.com/quote/PRHSX/performance?p=PRHSX)
+3. [Markets.ft](https://markets.ft.com/data/funds/ajax/US/get-comparison-panel?data={"comparisons":["PRHSX"],"openPanels":["Performance"]})
+
+**HTTP Request:**
+`link coming soon once I deploy`
 
 + Response 200 (application/json)
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
     + Body
-
+    
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
+                  "trailing_returns": {
+                    "1-Month": "1.57",
+                    "3-Month": "6.31",
+                    "6-Month": "7.75",
+                    "YTD": "7.75",
+                    "1-Year": "15.32",
+                    "3-Year": "5.11",
+                    "5-Year": "18.52",
+                    "10-Year": "17.19",
+                    "15-Year": "15.35"
+                  },
+                  "historical_returns": {
+                    "PRHSX": {
+                      "1996": "26.75",
+                      "1997": "19.41",
+                      "1998": "22.37",
+                      "1999": "7.97",
+                      "2000": "52.19",
+                      "2001": "-5.97",
+                      "2002": "-27.74",
+                      "2003": "37.49",
+                      "2004": "15.84",
+                      "2005": "13.53",
+                      "2006": "9.58",
+                      "2007": "18.75",
+                      "2008": "-28.77",
+                      "2009": "32.17",
+                      "2010": "16.33",
+                      "2011": "11.01",
+                      "2012": "31.93",
+                      "2013": "51.40",
+                      "2014": "31.94",
+                      "2015": "12.98",
+                      "2016": "-10.35",
+                      "2017": "27.95"
+                    },
+                    "Category": {
+                      "1996": "13.50",
+                      "1997": "22.11",
+                      "1998": "20.97",
+                      "1999": "18.58",
+                      "2000": "56.75",
+                      "2001": "-11.26",
+                      "2002": "-28.13",
+                      "2003": "32.51",
+                      "2004": "9.84",
+                      "2005": "9.64",
+                      "2006": "4.27",
+                      "2007": "9.27",
+                      "2008": "-23.43",
+                      "2009": "22.48",
+                      "2010": "8.38",
+                      "2011": "7.66",
+                      "2012": "21.55",
+                      "2013": "48.17",
+                      "2014": "27.25",
+                      "2015": "8.05",
+                      "2016": "-10.60",
+                      "2017": "24.31"
                     }
-                ]
-            }
+                  },
+                  "10000_growth_data": {
+                    "2013-08-31": 10000,
+                    "2013-09-30": 10580.968975,
+                    "2013-10-31": 10739.581388,
+                    "2013-11-30": 11316.857954,
+                    "2013-12-31": 11509.645292,
+                    "2014-01-31": 12170.752332,
+                    "2014-02-28": 12949.343377,
+                    "2014-03-31": 12198.627884,
+                    "2014-04-30": 11826.258666,
+                    "2014-05-31": 12314.125856,
+                    "2014-06-30": 12734.287829,
+                    "2014-07-31": 12845.799518,
+                    "2014-08-31": 13749.842397,
+                    "2014-09-30": 13656.252399,
+                    "2014-10-31": 14544.36436,
+                    "2014-11-30": 15064.093388,
+                    "2014-12-31": 15185.620557,
+                    "2015-01-31": 15840.03955,
+                    "2015-02-28": 16849.583881,
+                    "2015-03-31": 17311.917047,
+                    "2015-04-30": 16829.481821,
+                    "2015-05-31": 18203.086266,
+                    "2015-06-30": 18263.392446,
+                    "2015-07-31": 18761.464715,
+                    "2015-08-31": 17439.226935,
+                    "2015-09-30": 15969.581947,
+                    "2015-10-31": 16650.800527,
+                    "2015-11-30": 16811.612269,
+                    "2015-12-31": 17157.343058,
+                    "2016-01-31": 14822.688547,
+                    "2016-02-29": 14742.953377,
+                    "2016-03-31": 15071.84792,
+                    "2016-04-30": 15321.012033,
+                    "2016-05-31": 15856.714638,
+                    "2016-06-30": 15709.705583,
+                    "2016-07-31": 16454.704716,
+                    "2016-08-31": 15946.40841,
+                    "2016-09-30": 16158.198142,
+                    "2016-10-31": 14907.405388,
+                    "2016-11-30": 15674.824409,
+                    "2016-12-31": 15382.043423,
+                    "2017-01-31": 16137.086476,
+                    "2017-02-28": 17264.446608,
+                    "2017-03-31": 17113.437049,
+                    "2017-04-30": 17509.183622,
+                    "2017-05-31": 17389.419709,
+                    "2017-06-30": 18389.199776,
+                    "2017-07-31": 18680.800518,
+                    "2017-08-31": 19107.787996,
+                    "2017-09-30": 19360.341161,
+                    "2017-10-31": 19222.347461,
+                    "2017-11-30": 19750.878546,
+                    "2017-12-31": 19681.083018,
+                    "2018-01-31": 21356.839298,
+                    "2018-02-28": 20321.732502,
+                    "2018-03-31": 19946.851119,
+                    "2018-04-30": 20000.00948,
+                    "2018-05-31": 20878.451975,
+                    "2018-06-30": 21205.76812,
+                    "2018-07-31": 22003.081905,
+                    "2018-08-31": 23373.904008
+                  }
+                }
