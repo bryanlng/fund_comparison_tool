@@ -153,3 +153,92 @@ mutual funds.
                     "2018-08-31": 23373.904008
                   }
                 }
+                
+                
+## Fund Risk [/risk/fundname]
+
+### GET: /risk/fundname [GET]
+
+### Retrieves the following fields of risk data for the given mutual fund:
+1. Alpha
+2. Beta
+3. R-squared
+4. Standard deviation
+5. Sharpe ratio
+6. Sortino ratio
+7. Treynor ratio
+8. Capture ratios
+
+...retrieves the above 8 fields for 3 years, 5 years, 10 years, 15 years.
+
+
+### Sources I scraped this data from:
+1. [Morningstar Risk MPT Stats](http://performance.morningstar.com/ratrisk/RatingRisk/fund/mpt-statistics.action?&t=PRHSX&region=usa&culture=en-US&cur=&ops=clear&s=0P00001L8R&y=3&ep=true&comparisonRemove=true&benchmarkSecId=&benchmarktype=)
+2. [Morningstar Volatility Measurements](http://performance.morningstar.com/ratrisk/RatingRisk/fund/volatility-measurements.action?&t=PRHSX&region=usa&culture=en-US&cur=&ops=clear&s=0P00001L8R&y=3&ep=true&comparisonRemove=true&benchmarkSecId=&benchmarktype=)
+3. [Morningstar Capture Ratios](http://performance.morningstar.com/ratrisk/RatingRisk/fund/updownside-capture.action?&t=PRHSX&region=usa&culture=en-US&cur=&ops=clear&s=0P00001L8R&ep=true&comparisonRemove=null&benchmarkSecId=&benchmarktype=)
+
+**HTTP Request:**
+`link coming soon once I deploy`
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "3-Year": {
+                "Upside Ratio": "115.08",
+                "Downside ratio": "155.16",
+                "Category Index": "Morningstar US Healthcare TR USD",
+                "R-Squared": "87.76",
+                "Beta": "1.13",
+                "Alpha": "-2.11",
+                "Treynor Ratio": "—",
+                "Currency": "USD",
+                "Standard Deviation": "15.47",
+                "Return": "10.26",
+                "Sharpe Ratio": "0.66",
+                "Sortino Ratio": "0.92"
+              },
+              "5-Year": {
+                "Upside Ratio": "115.13",
+                "Downside ratio": "45.79",
+                "Category Index": "MSCI ACWI NR USD",
+                "R-Squared": "31.29",
+                "Beta": "0.84",
+                "Alpha": "9.94",
+                "Treynor Ratio": "21.37",
+                "Currency": "USD",
+                "Standard Deviation": "15.01",
+                "Return": "18.51",
+                "Sharpe Ratio": "1.18",
+                "Sortino Ratio": "1.84"
+              },
+              "10-Year": {
+                "Upside Ratio": "108.81",
+                "Downside ratio": "56.13",
+                "Category Index": "MSCI ACWI NR USD",
+                "R-Squared": "55.34",
+                "Beta": "0.79",
+                "Alpha": "11.71",
+                "Treynor Ratio": "22.08",
+                "Currency": "USD",
+                "Standard Deviation": "17.39",
+                "Return": "17.77",
+                "Sharpe Ratio": "1.01",
+                "Sortino Ratio": "1.55"
+              },
+              "15-Year": {
+                "Upside Ratio": "99.90",
+                "Downside ratio": "54.76",
+                "Category Index": "MSCI ACWI NR USD",
+                "R-Squared": "51.46",
+                "Beta": "0.77",
+                "Alpha": "8.89",
+                "Treynor Ratio": "19.01",
+                "Currency": "USD",
+                "Standard Deviation": "15.66",
+                "Return": "15.85",
+                "Sharpe Ratio": "0.94",
+                "Sortino Ratio": "1.45"
+              }
+            }
