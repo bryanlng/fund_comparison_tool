@@ -6,9 +6,9 @@ HOST: http://polls.apiblueprint.org/
 Fund Comparison Tool API is a simple API that allows users to query data on
 mutual funds.
 
-## Fund Performance [/performance/fundname]
+## Fund Performance [/performance/fund_symbol]
 
-### GET: /performance/fundname [GET]
+### GET: /performance/fund_symbol [GET]
 
 ### Retrieves the following fields of performance data for the given mutual fund:
 1. Trailing returns
@@ -155,9 +155,9 @@ mutual funds.
                 }
                 
                 
-## Fund Risk [/risk/fundname]
+## Fund Risk [/risk/fund_symbol]
 
-### GET: /risk/fundname [GET]
+### GET: /risk/fund_symbol [GET]
 
 ### Retrieves the following fields of risk data for the given mutual fund:
 1. Alpha
@@ -240,5 +240,58 @@ mutual funds.
                 "Return": "15.85",
                 "Sharpe Ratio": "0.94",
                 "Sortino Ratio": "1.45"
+              }
+            }
+            
+## General Stats [/general/fund_symbol]
+
+### GET: /general/fund_symbol [GET]
+
+### Retrieves the following fields of data for the given Genermutual fund:
+1. Price (NAV)
+2. Min. initial investment
+3. Expense ratio
+4. Asset allocation pie chart data (Morningstar's pie chart: Cash, US stock, Non-US stock, bonds, etc)
+5. Morningstar overall rating
+6. Morningstar risk vs category
+7. Morningstar return vs category
+8. Morningstar category
+9. Turnover ratio
+
+### Sources I scraped this data from:
+1. [Morningstar General Stats](https://quotes.morningstar.com/fundq/c-header?&t=PRHSX&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame)
+2. [Morningstar Asset Allocation](https://quotes.morningstar.com/fundq/c-assetAllocation?&t=PRHSX&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame)
+3. [Morningstar Risk & Return vs Category](https://quotes.morningstar.com/fundq/c-risk-measures?&t=PRHSX&region=usa&culture=en-US&version=RET&cur=&test=QuoteiFrame)
+4. [Morningstar Overall Rating](https://www.morningstar.com/api/v1/security-identifier/0P00002WFU)
+5. [Morningstar Quotes](https://www.morningstar.com/funds/XNAS/PRHSX/quote.html)
+
+**HTTP Request:**
+`link coming soon once I deploy`
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "Section.GENERAL_STATS": {
+                "NAV": "81.82",
+                "MinInvestment": "2,500",
+                "ExpenseRatio": "0.77%",
+                "Turnover": "38%",
+                "MorningstarCategory": "Health"
+              },
+              "Section.ASSET_ALLOCATION": {
+                "Cash": "0.38%",
+                "US Stock": "93.99%",
+                "Non US Stock": "5.17%",
+                "Bond": "0.00%",
+                "Other": "0.46%"
+              },
+              "Section.RISK_RETURN_VS_CATEGORY": {
+                "Risk vs.Category": "Avg",
+                "Return vs.Category": "High"
+              },
+              "Section.OVERALL_RATING": {
+                "starRating": 4
               }
             }
