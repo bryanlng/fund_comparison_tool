@@ -1,4 +1,10 @@
 # Mutual Fund Comparison Tool (currently under construction!)
+![](https://img.shields.io/badge/Python-3.6-blue.svg)
+![](https://img.shields.io/badge/Django-2.1-yellow.svg)
+![](https://img.shields.io/badge/django_rest_framework-3.8.2-orange.svg)
+![](https://img.shields.io/badge/Build_Status-Coming_Soon-green.svg)
+![](https://img.shields.io/badge/Coverage-Coming_Soon-green.svg)
+
 
 ## About
 This tool allows a user to compare multiple mutual funds, side by side, on a variety of vectors (Performance, Risk, etc),
