@@ -1,18 +1,26 @@
-# Mutual Fund Comparison Tool
+# Mutual Fund Comparison Tool (currently under construction!)
+
+## About
+This tool allows a user to compare multiple mutual funds, side by side, on a variety of vectors (Performance, Risk, etc),
+so they can make the best, unbiased decision on an investment.
+
+### Purpose
+To create a better tool for comparing mutual funds. The majority of the currently available tools are either incredibly difficult to use, or are unable to provide enough information to make a solid decision. Currently, the best option out there is [Markets.ft](https://markets.ft.com/data/funds/us/compare), but even they don't provide enough information to make a solid investment decision.
+
+As an investor, I want to know as much information as possible about the mutual funds that I might potentially put thousands of dollars into. In addition, I want to be able to compare mutual funds in a seamless and efficient fashion; getting the information I need shouldn't be a nuisance.
 
 ## Documentation:
 Documentation for the internal REST API is on [Apiary](https://mutualfundcomparisontoolapi.docs.apiary.io/#)
 
-## Trello board:
+## Backlog of items to complete:
 https://trello.com/b/p1mWpgjU
 
 ## Installation:
 ```
-
 pip install -r requirements.txt
 cd fundtool
 python3 manage.py runserver
-Open up a browser and go to h[http://127.0.0.1:8000/v1/performance/PRHSX](http://127.0.0.1:8000/v1/performance/PRHSX)
+Open up a browser and go to [http://127.0.0.1:8000/v1/performance/PRHSX](http://127.0.0.1:8000/v1/performance/PRHSX)
 ```
 
 ## Sources I pull from:
@@ -46,5 +54,5 @@ For this example, I used PRHSX. Replace with actual mutual fund symbol (5 letter
 
 
 ## Example that I used to build the backend:
-https://scotch.io/tutorials/build-a-rest-api-with-django-a-test-driven-approach-part-1
-https://blog.sicara.com/deploy-serverless-rest-api-lambda-s3-aws-2cf99b8f34ae
+   1. https://scotch.io/tutorials/build-a-rest-api-with-django-a-test-driven-approach-part-1
+   2. https://blog.sicara.com/deploy-serverless-rest-api-lambda-s3-aws-2cf99b8f34ae
