@@ -26,8 +26,17 @@ https://trello.com/b/p1mWpgjU
 pip install -r requirements.txt
 cd fundtool
 python3 manage.py runserver
-Open up a browser and go to [http://127.0.0.1:8000/v1/performance/PRHSX](http://127.0.0.1:8000/v1/performance/PRHSX)
+Open up a browser and go to http://127.0.0.1:8000/v1/performance/PRHSX
 ```
+
+## Local testing:
+```
+cd fundtool
+python3 manage.py runserver
+Open up a browser and go to http://127.0.0.1:8000/v1/performance/PRHSX
+```
+
+## Deploying (coming soon once I figure this part out):
 
 ## Sources I pull from:
 ### Basic summary:
