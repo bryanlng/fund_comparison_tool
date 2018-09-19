@@ -31,6 +31,7 @@ Open up a browser and go to [http://127.0.0.1:8000/v1/performance/PRHSX](http://
 
 ## Sources I pull from:
 ### Basic summary:
+I used BeautifulSoup 4 and lxml to scrape data from the following sites:
 1. Yahoo Finance
 2. MorningStar
 3. Markets.ft
