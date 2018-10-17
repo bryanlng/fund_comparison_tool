@@ -49,7 +49,7 @@ I used BeautifulSoup 4 and lxml to scrape data from the following sites:
 For this example, I used PRHSX. Replace with actual mutual fund symbol (5 letter, all caps, no spaces)
 
 #### I. Performance:
-   1. [Morningstar Trailing Returns](http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=PRHSX>&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype=)
+   1. [Morningstar Trailing Returns](http://performance.morningstar.com/perform/Performance/fund/trailing-total-returns.action?&t=PRHSX&cur=&ops=clear&s=0P00001L8R&ndec=2&ep=true&align=q&annlz=true&comparisonRemove=false&loccat=&taxadj=&benchmarkSecId=&benchmarktype=)
    2. [Markets.ft Hypothetical growth of $10000](https://markets.ft.com/data/funds/ajax/US/get-comparison-panel?data={"comparisons":["PRHSX"],"openPanels":["Performance"]})
    3. [Yahoo Finance Historical Returns](https://finance.yahoo.com/quote/PRHSX/performance?p=PRHSX)
 
