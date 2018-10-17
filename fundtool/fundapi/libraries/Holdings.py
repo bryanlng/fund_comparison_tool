@@ -14,6 +14,11 @@ class HoldingsStats:
             1. Name
             2. % portfolio weight
             3. YTD return
+            4. Shares owned
+            5. Shares changed
+            6. P/E
+            7. Price
+            8. G/L % (gain/loss percent for the day)
 
         First get the first 25 most weighted companies from portfolio (desc)
         For each:
