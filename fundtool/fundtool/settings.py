@@ -25,7 +25,7 @@ SECRET_KEY = 'p^b#u-#+r#2k!@jg&g27lh7otpnd1col8)wi*r9!%9yge*p18#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com"]
 
 
 # Application definition

@@ -6,3 +6,8 @@ __pycache__
 
 # Most projects end up with a local.env that can contain config settings/credentials
 local.env
+
+/env
+/deployment_debugging_stuff
+/fundtool/.ebextensions
+/fundtool/.elasticbeanstalk
