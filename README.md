@@ -6,6 +6,10 @@
 ![](https://img.shields.io/badge/Coverage-Coming_Soon-green.svg)
 
 
+## Update
+Website deployed onto temporary link that represents the AWS Elastic Beanstalk environment: [link](django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com/v1/performance/PRHSX)
+I'm working on getting a link to a domain hosted on Route 53 up and running.
+
 ## About
 This tool allows a user to compare multiple mutual funds, side by side, on a variety of vectors (Performance, Risk, etc),
 so they can make the best, unbiased decision on an investment.
