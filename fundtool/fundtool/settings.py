@@ -25,7 +25,10 @@ SECRET_KEY = 'p^b#u-#+r#2k!@jg&g27lh7otpnd1col8)wi*r9!%9yge*p18#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com"
+    ]
 
 
 # Application definition
@@ -71,6 +74,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fundtool.wsgi.application'
 
+# Rate Limiting
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/day'
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
