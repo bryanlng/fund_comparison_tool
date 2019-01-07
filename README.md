@@ -75,6 +75,9 @@ For this example, I used PRHSX. Replace with actual mutual fund symbol (5 letter
    1. [Morningstar Top 25 Holdings](http://portfolios.morningstar.com/portfo/fund/ajax/holdings_tab?t=PRHSX&region=usa&culture=en-US&cur=&dataType=0&sortby=weighting&order=des)
 
 
-## Example that I used to build the backend:
+## Example that I used to build the backend and deploy it:
    1. https://scotch.io/tutorials/build-a-rest-api-with-django-a-test-driven-approach-part-1
    2. https://blog.sicara.com/deploy-serverless-rest-api-lambda-s3-aws-2cf99b8f34ae
+   3. https://www.django-rest-framework.org/api-guide/throttling/
+   4. https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-django.html
+   5. https://aws.amazon.com/getting-started/tutorials/get-a-domain/
