@@ -27,8 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
-    "django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com"
-    ]
+    "django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com",
+    "www.comparemutualfunds.co.uk"
+]
 
 
 # Application definition
