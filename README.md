@@ -7,7 +7,7 @@
 
 
 ## Update
-Website deployed onto temporary link that represents the AWS Elastic Beanstalk environment: [link](django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com/v1/performance/PRHSX)
+Website deployed onto temporary link that represents the AWS Elastic Beanstalk environment: [link](http://django-fundtool-env-v2.b6g2yd8kcu.us-east-1.elasticbeanstalk.com/v1/performance/PRHSX)
 
 
 I'm working on getting a link to a domain hosted on Route 53 up and running.
