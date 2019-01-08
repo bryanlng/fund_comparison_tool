@@ -10,8 +10,6 @@
 REST API is finally deployed! [link](http://www.comparemutualfunds.co.uk/v1/performance/PRHSX)
 
 
-I'm working on getting a link to a domain hosted on Route 53 up and running.
-
 ## About
 This tool allows a user to compare multiple mutual funds, side by side, on a variety of vectors (Performance, Risk, etc),
 so they can make the best, unbiased decision on an investment.
@@ -42,7 +40,83 @@ python3 manage.py runserver
 Open up a browser and go to http://127.0.0.1:8000/v1/performance/PRHSX
 ```
 
-## Deploying (coming soon once I figure this part out):
+## Deploying:
+I used AWS Elastic Beanstalk to deploy this Django project, and Route 53 to register the domain name. Tutorials can be found at this [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-django.html) and this [link](https://aws.amazon.com/getting-started/tutorials/get-a-domain/) as well as at the bottom of the page, but in case the links are broken, here are the following steps to deploying:
+
+### [Deploying onto AWS Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-django.html)
+1. Go to the fundtool directory
+```
+cd fundtool
+```
+
+2. Create a directory called ".ebextensions", and cd into it
+```
+mkdir .ebextensions
+cd .ebextensions
+```
+
+3. Create a file called "django.config", and place the following text inside:
+```
+option_settings:
+  aws:elasticbeanstalk:container:python:
+    WSGIPath: fundtool/wsgi.py
+```
+
+4. Initialize your EB CLI repository with the eb init command: 
+```
+eb init -p python-3.6 django-tutorial
+where django-tutorial is the name of the AWS EB application
+```
+
+5. Create an environment and deploy you application to it with eb create:
+```
+eb create django-env
+where django-env is the name of the AWS EB environment
+```
+
+6. When the environment creation process completes, find the domain name of your new environment by running eb status:
+```
+eb status
+Environment details for: django-env
+  Application name: django-tutorial
+  ...
+  CNAME: eb-django-app-dev.elasticbeanstalk.com
+  ...
+```
+
+7. Edit the settings.py file in the ebdjango directory, locate the ALLOWED_HOSTS setting, and then add your application's domain name that you found in the previous step to the setting's value. If you can't find this setting in the file, add it to a new line. 
+```
+...
+ALLOWED_HOSTS = ['eb-django-app-dev.elasticbeanstalk.com']
+```
+
+8. Save the file, and then deploy your application by running eb deploy. When you run eb deploy, the EB CLI bundles up the contents of your project directory and deploys it to your environment. 
+```
+eb deploy   
+```
+
+9. Open the website by typing eb open. If an error shows up, append the http path "/v1/performance/<fund_name>" to the url
+```
+eb open
+```
+
+### [Registering the domain name](https://aws.amazon.com/getting-started/tutorials/get-a-domain/)
+#### Step 1: Registering the domain name
+1. Open the Route 53 console on your AWS account, located [here](https://console.aws.amazon.com/route53/home?region=us-east-1)
+2. Under Domain Registration, click "Get Started Now"
+3. Click "Register Domain", and choose a name and TLD. Enter contact details and then complete the purchase
+
+#### Step 2: Configuring DNS
+1. Go back to the Route 53 console on your AWS account, located [here](https://console.aws.amazon.com/route53/home?region=us-east-1)
+2. Under Hosted Zones, click on the domain you chose.
+3. Click on the button "Create Record Set". Here, we'll be creating a Fully Qualified Domain Name. 
+   1. Under "Name", type "www"
+   2. Under "Type", put "A - IPv4 address"
+   3. Under "Alias Target", choose the option under "Elastic Load Balancers". The correct target should be the corresponding CNAME of your  AWS EB environment. You can double check this by typing in "eb status" into a terminal.
+   4. Under "Routing Policy", choose "Simple".
+   5. Under "Evaluate Target Health", choose "no".
+  
+
 
 ## Sources I pull from:
 ### Basic summary:
