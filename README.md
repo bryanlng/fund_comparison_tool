@@ -14,6 +14,18 @@ REST API is finally deployed! [link](http://www.comparemutualfunds.co.uk/v1/perf
 This tool allows a user to compare multiple mutual funds, side by side, on a variety of vectors (Performance, Risk, etc),
 so they can make the best, unbiased decision on an investment.
 
+## Usage
+Currently, only the backend has been developed.
+To get the stats of a mutual fund, type in the following URL:
+"www.comparemutualfunds.co.uk/v1/performance/<5 letter fund symbol>"
+
+
+For example:
+Vanguard 500 Index Fund Admiral Shares (VFIAX)
+
+[http://www.comparemutualfunds.co.uk/v1/performance/VFIAX](http://www.comparemutualfunds.co.uk/v1/performance/VFIAX)
+
+
 ### Purpose
 To create a better tool for comparing mutual funds. The majority of the currently available tools are either incredibly difficult to use, or are unable to provide enough information to make a solid decision. Currently, the best option out there is [Markets.ft](https://markets.ft.com/data/funds/us/compare), but even they don't provide enough information to make a solid investment decision.
 
