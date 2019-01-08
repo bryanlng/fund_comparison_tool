@@ -65,13 +65,15 @@ option_settings:
 4. Initialize your EB CLI repository with the eb init command: 
 ```
 eb init -p python-3.6 django-tutorial
-where django-tutorial is the name of the AWS EB application
+
+...where django-tutorial is the name of the AWS EB application
 ```
 
 5. Create an environment and deploy you application to it with eb create:
 ```
 eb create django-env
-where django-env is the name of the AWS EB environment
+
+...where django-env is the name of the AWS EB environment
 ```
 
 6. When the environment creation process completes, find the domain name of your new environment by running eb status:
