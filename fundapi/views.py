@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
+from rest_framework.throttling import UserRateThrottle
 
 from fundapi.libraries.Performance import PerformanceStats
 from fundapi.libraries.Risk import RiskStats
@@ -13,6 +14,8 @@ import fundapi.libraries.exceptions as FundException
 
 # Create your views here.
 class PerformanceView(APIView):
+    throttle_classes = (UserRateThrottle,)
+
     def get(self, request, fund_symbol):
         """
         An endpoint to grab Performance data for a fund
@@ -38,6 +41,7 @@ class PerformanceView(APIView):
 
         request_status = status.HTTP_200_OK
         try:
+            print("host header: {}".format(request.META['HTTP_HOST']))
             p = PerformanceStats()
             response = p.get_performance_stats(fund_symbol)
 
@@ -62,6 +66,7 @@ class PerformanceView(APIView):
 
 
 class RiskView(APIView):
+    throttle_classes = (UserRateThrottle,)
     def get(self, request, fund_symbol):
         """
         An endpoint to grab Performance data for a fund
@@ -111,6 +116,7 @@ class RiskView(APIView):
 
 
 class GeneralView(APIView):
+    throttle_classes = (UserRateThrottle,)
     def get(self, request, fund_symbol):
         """
         An endpoint to grab Performance data for a fund
@@ -160,6 +166,7 @@ class GeneralView(APIView):
 
 
 class HoldingsView(APIView):
+    throttle_classes = (UserRateThrottle,)
     def get(self, request, fund_symbol):
         """
         An endpoint to grab Performance data for a fund

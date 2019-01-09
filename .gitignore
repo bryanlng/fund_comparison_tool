@@ -4,10 +4,9 @@ __pycache__
 
 .DS_Store
 
-# Most projects end up with a local.env that can contain config settings/credentials
-local.env
-
-/env
-/deployment_debugging_stuff
-/fundtool/.ebextensions
-/fundtool/.elasticbeanstalk
+misc/env
+misc/selenium_drivers
+misc/deployment_debugging_stuff
+.ebextensions
+.elasticbeanstalk
+.git
