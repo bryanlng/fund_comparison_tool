@@ -7,6 +7,4 @@ __pycache__
 misc/env
 misc/selenium_drivers
 misc/deployment_debugging_stuff
-.ebextensions
-.elasticbeanstalk
 .git
