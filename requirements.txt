@@ -23,7 +23,7 @@ idna==2.6
 jmespath==0.9.3
 kappa==0.6.0
 lambda-packages==0.20.0
-lxml==4.2.4
+lxml==4.6.2
 numpy==1.15.2
 pandas==0.23.4
 pathspec==0.5.5
