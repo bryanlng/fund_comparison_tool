@@ -24,7 +24,7 @@ jmespath==0.9.3
 kappa==0.6.0
 lambda-packages==0.20.0
 lxml==4.2.4
-numpy==1.15.2
+numpy==1.22.0
 pandas==0.23.4
 pathspec==0.5.5
 placebo==0.8.2
